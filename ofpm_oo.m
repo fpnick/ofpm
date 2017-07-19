@@ -10,10 +10,16 @@ if ( printlevel > 9 )
 end
 
 coarsecloud = pointcloud.coarsen;
+pointcloud
+coarsecloud
 
-pointcloud.plot;
-figure;
-coarsecloud.plot;
+%pointcloud.plot;
+%figure;
+%coarsecloud.plot;
+
+% TODO Write a class "solver" that uses the pointcloud(s) to set up the
+% matrix(matrices)
+
 
 
 end
