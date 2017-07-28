@@ -6,6 +6,7 @@ classdef Solver < handle
        pointcloud
        matrix
        rhs
+       printlevel
 
     end
 
@@ -15,6 +16,7 @@ classdef Solver < handle
           obj.pointcloud = Pointcloud(h,0,0,1,1);
           obj.pointcloud.findNeighbours;
           obj.pointcloud.organize;
+          obj.printlevel = printlevel;
           if ( printlevel > 9 )
              obj.pointcloud.plot;
           end
@@ -39,6 +41,7 @@ classdef Solver < handle
                   rhs(i) = obj.bcFunction(pointcloud.coords(i,:));
               end
           end
+          obj.rhs = rhs;
        end
           
        function f = loadFunction(obj,point)
