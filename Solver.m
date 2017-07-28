@@ -26,6 +26,14 @@ classdef Solver < handle
        function advance(obj)
           obj.setupMatrix(obj.pointcloud);
           obj.setupRHS(obj.pointcloud);
+
+          % Solve system
+          disp('Solving linear system...')
+          sol = obj.matrix \ obj.rhs;
+
+          if ( obj.printlevel > 4 )
+             obj.plotSolution(obj.pointcloud,sol)
+          end
        end
 
     end
@@ -111,6 +119,19 @@ classdef Solver < handle
           %   Detailed explanation goes here
           GAMMA = 4;
           W = diag(exp(-GAMMA * distances.^2) - 0.0183);
+       end
+
+       function plotSolution(obj,pointcloud,sol)
+          disp('Plotting solution...')
+          [X,Y] = meshgrid(pointcloud.lbx:sqrt(1/pointcloud.N):pointcloud.ubx,pointcloud.lby:sqrt(1/pointcloud.N):pointcloud.uby);
+          Vq = griddata(pointcloud.coords(:,1),pointcloud.coords(:,2),sol,X,Y);
+          figure
+          mesh(X,Y,Vq);
+          hold on
+          plot3(pointcloud.coords(:,1),pointcloud.coords(:,2),sol,'o')
+          hold off
+          figure
+          contour(X,Y,Vq);
        end
           
 
