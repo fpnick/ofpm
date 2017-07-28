@@ -26,9 +26,9 @@ classdef Pointcloud < handle
             
             if ( nargin == 5 )
                 obj.N = round(40/h^2);
-                obj.coords = zeros(obj.N,2);
                 
-                if ( obj.N > 0 )
+                if ( 0 )
+                   obj.coords = zeros(obj.N,2);
                     for i=1:obj.N
                         obj.coords(i,1) = unifrnd(obj.lbx,obj.ubx);
                     end
@@ -43,15 +43,17 @@ classdef Pointcloud < handle
                             obj.coords((i-1)*Ntmp+j-i+1,2) = 1/Ntmp * i;
                         end
                     end
+                    obj.N = length(obj.coords);
                 end
                 
-                NInterior = obj.N;
+                NInterior = obj.N
                 
-                x_bottom = obj.lbx:h:obj.ubx;
+                hBnd = 1/sqrt(obj.N);
+                x_bottom = obj.lbx:hBnd:obj.ubx;
                 y_bottom = ones(1,size(x_bottom,2))*obj.lby;
                 x_top = x_bottom;
                 y_top = ones(1,size(x_bottom,2))*obj.uby;
-                y_right = obj.lby+obj.h:obj.h:obj.uby-obj.h;
+                y_right = obj.lby+hBnd:hBnd:obj.uby-hBnd;
                 x_right = ones(1,size(y_right,2))*obj.ubx;
                 y_left = y_right;
                 x_left = ones(1,size(y_right,2))*obj.lbx;
