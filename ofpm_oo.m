@@ -1,4 +1,4 @@
-function [ A,rhs,sol ] = ofpm_oo( h, printlevel )
+function [ A,rhs,sol,coords ] = ofpm_oo( h, printlevel )
 %OFPM_OO Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -8,6 +8,7 @@ solver.advance();
 A=solver.matrix;
 rhs=solver.rhs;
 sol=solver.sol;
+coords = solver.pointcloud.coords;
 
 %pointcloud.plot;
 %figure;

@@ -27,7 +27,7 @@ classdef Pointcloud < handle
             if ( nargin == 5 )
                 obj.N = round(40/h^2);
                 
-                if ( 0 )
+                if ( 1 )
                    obj.coords = zeros(obj.N,2);
                     for i=1:obj.N
                         obj.coords(i,1) = unifrnd(obj.lbx,obj.ubx);
@@ -70,9 +70,11 @@ classdef Pointcloud < handle
                  obj.ibound = ibound;
             end
         end
+
         function findNeighbours(obj)
             [obj.neighbourLists,obj.distanceLists] = rangesearch(obj.coords,obj.coords,obj.h);
         end
+
         function organize(obj)
             is_active = ones(obj.N,1);
             for i = 1:obj.N
@@ -87,19 +89,21 @@ classdef Pointcloud < handle
                     end
                 end
             end
-            ptr=0;
-            index2activeIndex=zeros(obj.N,1);
-            for i = 1:obj.N
-                if ( is_active(i) )
-                    ptr=ptr+1;
-                end
-                index2activeIndex(i) = ptr;
-            end
+            %ptr=0;
+            %index2activeIndex=zeros(obj.N,1);
+            %for i = 1:obj.N
+            %    if ( is_active(i) )
+            %        ptr=ptr+1;
+            %    end
+            %    index2activeIndex(i) = ptr;
+            %end
             obj.N = sum(is_active);
             obj.coords = [obj.coords(find(is_active),1),obj.coords(find(is_active),2)];
             obj.findNeighbours;
         end
+
         function plot(obj)
+            figure;
             plot(obj.coords(:,1),obj.coords(:,2),'.');
         end
         

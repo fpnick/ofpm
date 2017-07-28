@@ -16,7 +16,7 @@ classdef Solver < handle
 
           obj.pointcloud = Pointcloud(h,0,0,1,1);
           obj.pointcloud.findNeighbours;
-          %obj.pointcloud.organize;
+          obj.pointcloud.organize;
           obj.printlevel = printlevel;
           if ( printlevel > 9 )
              obj.pointcloud.plot;
