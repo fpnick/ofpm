@@ -5,6 +5,10 @@ function [ A,rhs,sol ] = ofpm_oo( h, printlevel )
 solver=Solver(h,printlevel);
 solver.advance();
 
+A=solver.matrix;
+rhs=solver.rhs;
+sol=solver.sol;
+
 %pointcloud.plot;
 %figure;
 %coarsecloud.plot;
