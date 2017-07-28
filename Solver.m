@@ -26,6 +26,7 @@ classdef Solver < handle
 
        function advance(obj)
 
+           
           obj.setupMatrix(obj.pointcloud);
           obj.setupRHS(obj.pointcloud);
 
@@ -79,23 +80,49 @@ classdef Solver < handle
 
        function setupMatrix(obj,pointcloud)
           disp('Setting up matrix...')
-          obj.matrix = sparse(pointcloud.N,pointcloud.N);
+          %obj.matrix = sparse(pointcloud.N,pointcloud.N);
 
           parfor i=1:pointcloud.N
              if ( pointcloud.ibound(i)==0 ) 
                 stencil{i} = obj.setupStencil(pointcloud,i);
+                n = max(size(pointcloud.neighbourLists{i}));
+                ja{i} = pointcloud.neighbourLists{i}(2:n);
+             end
+          end
+          nna=pointcloud.N;
+          for i=1:pointcloud.N
+             if ( pointcloud.ibound(i)==0 ) 
+                nna = nna + length(ja{i});
+             end
+          end
+          row = zeros(nna,1);
+          col = zeros(nna,1);
+          val = zeros(nna,1);
+          ptr = 1;
+          for i=1:pointcloud.N
+             if ( pointcloud.ibound(i)==0 )
+                for j=1:length(stencil{i})
+                   row(ptr) = i;
+                   col(ptr) = ja{i}(j);
+                   val(ptr) = -stencil{i}(j); % without -, this gave better
+                                              % results near the boundary!
+                                              % However, the unstructured case
+                                              % looks weird in the interior
+                   ptr = ptr+1;
+                end 
+                row(ptr) = i;
+                col(ptr) = i;
+                val(ptr) = sum(stencil{i});
+                ptr = ptr+1;
+             else
+                row(ptr) = i;
+                col(ptr) = i;
+                val(ptr) = -1.0;
+                ptr = ptr+1;
              end
           end
 
-          for i=1:pointcloud.N
-             if ( pointcloud.ibound(i)==0 )
-                n = max(size(pointcloud.neighbourLists{i}));
-                obj.matrix(i,pointcloud.neighbourLists{i}(2:n)) = -stencil{i};
-                obj.matrix(i,i) = sum(stencil{i});
-             else
-                obj.matrix(i,i) = 1.0;
-             end 
-          end
+          obj.matrix=sparse(row,col,val);
 
        end
 
