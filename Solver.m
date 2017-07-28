@@ -7,6 +7,7 @@ classdef Solver < handle
        matrix
        rhs
        printlevel
+       sol
 
     end
 
@@ -24,15 +25,16 @@ classdef Solver < handle
        end
 
        function advance(obj)
+
           obj.setupMatrix(obj.pointcloud);
           obj.setupRHS(obj.pointcloud);
 
           % Solve system
           disp('Solving linear system...')
-          sol = obj.matrix \ obj.rhs;
+          obj.sol = obj.matrix \ obj.rhs;
 
           if ( obj.printlevel > 4 )
-             obj.plotSolution(obj.pointcloud,sol)
+             obj.plotSolution(obj.pointcloud,obj.sol)
           end
        end
 
