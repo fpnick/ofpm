@@ -1,17 +1,19 @@
 
 addpath('..')
 
-x=0.01:0.01:0.1; 
-condition = zeros(length(x),1);
-size = zeros(length(x),1);
-eigmax = zeros(length(x),1);
-eigmin = zeros(length(x),1);
-diagdom = zeros(length(x),1);
+X=1:1:3
+H=0.05
+
+condition = zeros(length(X),1);
+size = zeros(length(X),1);
+eigmax = zeros(length(X),1);
+eigmin = zeros(length(X),1);
+diagdom = zeros(length(X),1);
 
 
-parfor i=1:length(x)
-    x(i)
-    [A,rhs,sol]=ofpm_oo(x(i),0,0,1,1,0);
+parfor i=1:length(X)
+    X(i)
+    [A,rhs,sol]=ofpm_oo(H,0,0,X(i),X(i),0);
     condition(i) = condest(A);
     size(i) = length(A);
     eigmin(i) = eigs(A,1,'sm');
@@ -28,25 +30,25 @@ parfor i=1:length(x)
 end
 
 figure;
-plot(size,condition,'s',size,condition_norm,'s');
+plot(X,condition,'s',X,condition_norm,'s');
 title("Condition Numbers");
 legend("Unscaled","Normalized");
 legend('Location','northwest');
-xlabel("Matrix Size");
+xlabel("Geometry Length");
 figure;
-semilogy(size,eigmin,'v',size,eigmax,'^');
+semilogy(X,eigmin,'v',X,eigmax,'^');
 title("Eigenvalues of Unscaled Systems (absolute values)");
 legend("Min","Max");
 legend('Location','southwest');
-xlabel("Matrix Size");
+xlabel("Geometry Length");
 figure;
-semilogy(size,eigmin_norm,'v',size,eigmax_norm,'^');
+semilogy(X,eigmin_norm,'v',X,eigmax_norm,'^');
 title("Eigenvalues of Normalized Systems (absolute values)");
 legend("Min","Max");
 legend('Location','southwest');
-xlabel("Matrix Size");
+xlabel("Geometry Length");
 figure;
-plot(size,diagdom,'x');
+plot(X,diagdom,'x');
 title("Diagonal Dominance");
-xlabel("Matrix Size");
+xlabel("Geometry Length");
 

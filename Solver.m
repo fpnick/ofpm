@@ -12,9 +12,9 @@ classdef Solver < handle
     end
 
     methods
-       function obj = Solver(h,printlevel)
+       function obj = Solver(h,lbx,lby,ubx,uby,printlevel)
 
-          obj.pointcloud = Pointcloud(h,0,0,1,1);
+          obj.pointcloud = Pointcloud(h,lbx,lby,ubx,uby);
           obj.pointcloud.findNeighbours;
           obj.pointcloud.organize;
           obj.printlevel = printlevel;

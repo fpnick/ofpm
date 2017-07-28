@@ -1,8 +1,8 @@
-function [ A,rhs,sol,coords ] = ofpm_oo( h, printlevel )
+function [ A,rhs,sol,coords ] = ofpm_oo( h, lbx,lby,ubx,uby,printlevel )
 %OFPM_OO Summary of this function goes here
 %   Detailed explanation goes here
 
-solver=Solver(h,printlevel);
+solver=Solver(h,lbx,lby,ubx,uby,printlevel);
 solver.advance();
 
 A=solver.matrix;
