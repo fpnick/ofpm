@@ -1,5 +1,5 @@
 
-x=0.03:0.01:0.1; 
+x=0.02:0.01:0.1; 
 condition = zeros(length(x),1);
 size = zeros(length(x),1);
 eigmax = zeros(length(x),1);
@@ -21,3 +21,11 @@ parfor i=1:length(x)
     
     matrizen{i} = A;
 end
+
+figure;
+plot(size,condition,size,condition_norm)
+figure;
+plot(size,eigmin,size,eigmax)
+figure;
+plot(size,eigmin_norm,size,eigmax_norm)
+
