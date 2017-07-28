@@ -1,4 +1,6 @@
 
+addpath('..')
+
 x=0.07:0.01:0.1; 
 condition = zeros(length(x),1);
 size = zeros(length(x),1);
