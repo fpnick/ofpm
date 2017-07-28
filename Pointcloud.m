@@ -77,7 +77,7 @@ classdef Pointcloud < handle
                 if is_active(i)
                     for j = 1:length(obj.neighbourLists{i})
                         if i ~= obj.neighbourLists{i}(j) && is_active(obj.neighbourLists{i}(j))
-                            if  obj.distanceLists{i}(j) < obj.h*0.1  
+                            if  obj.distanceLists{i}(j) < obj.h*0.1 && obj.ibound(i)==0
                                 is_active(i) = 0;
                                 break;
                             end
