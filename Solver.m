@@ -117,7 +117,7 @@ classdef Solver < handle
              else
                 row(ptr) = i;
                 col(ptr) = i;
-                val(ptr) = -1.0;
+                val(ptr) = 1.0;
                 ptr = ptr+1;
              end
           end
