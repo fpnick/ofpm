@@ -100,6 +100,16 @@ classdef Pointcloud < handle
             obj.N = sum(is_active);
             obj.coords = [obj.coords(find(is_active),1),obj.coords(find(is_active),2)];
             obj.findNeighbours;
+            for i=1:obj.N
+               if ( obj.isBoundary(obj.coords(i,:)) )
+                   obj.ibound(i) = 1;
+               end
+           end
+        end
+
+        function bol = isBoundary(obj,point)
+           % ISBOUNDARY return 1 iff the given point is on a boundary
+           bol = (point(1) == obj.lbx || point(2) == obj.lby ||point(1) == obj.ubx || point(2) == obj.uby);
         end
 
         function plot(obj)
