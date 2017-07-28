@@ -5,6 +5,7 @@ classdef Solver < handle
     properties
        pointcloud
        matrix
+       rhs
 
     end
 
@@ -22,11 +23,46 @@ classdef Solver < handle
 
        function advance(obj)
           obj.setupMatrix(obj.pointcloud);
+          obj.setupRHS(obj.pointcloud);
        end
 
     end
 
     methods (Access=private)
+       function rhs = setupRHS(obj,pointcloud)
+          disp('Setting up RHS...')
+          rhs = zeros(pointcloud.N,1);
+          for i=1:pointcloud.N
+              if ( ~pointcloud.ibound(i) )
+                  rhs(i) = obj.loadFunction(pointcloud.coords(i,:));
+              else
+                  rhs(i) = obj.bcFunction(pointcloud.coords(i,:));
+              end
+          end
+       end
+          
+       function f = loadFunction(obj,point)
+          %LOADFUNCTION Summary of this function goes here
+          %   Detailed explanation goes here
+          x=point(1,1);
+          y=point(1,2);
+
+          %f = 0;
+          %f = -2*sin(x) * sin(y);
+          f = -8*pi^2 * sin(2*pi*x) * sin(2*pi*y);
+          %f = sin(2*pi*x) * sin(2*pi*y);
+       end
+
+       function [ u ] = bcFunction(obj,point)
+       %BCFUNCTION Summary of this function goes here
+       %   Detailed explanation goes here
+          x=point(1,1);
+          y=point(1,2);
+
+          %u = 1;
+          %u = sin(x) * sin(y);
+          u = sin(2*pi*x) * sin(2*pi*y);
+       end
 
        function setupMatrix(obj,pointcloud)
           disp('Setting up matrix...')
