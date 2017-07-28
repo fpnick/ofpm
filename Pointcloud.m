@@ -78,10 +78,10 @@ classdef Pointcloud < handle
         function organize(obj)
             is_active = ones(obj.N,1);
             for i = 1:obj.N
-                if is_active(i)
+                if is_active(i) && obj.ibound(i)==0
                     for j = 1:length(obj.neighbourLists{i})
                         if i ~= obj.neighbourLists{i}(j) && is_active(obj.neighbourLists{i}(j))
-                            if  obj.distanceLists{i}(j) < obj.h*0.1 && obj.ibound(i)==0
+                            if  obj.distanceLists{i}(j) < obj.h*0.1 
                                 is_active(i) = 0;
                                 break;
                             end
