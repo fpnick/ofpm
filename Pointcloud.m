@@ -46,7 +46,7 @@ classdef Pointcloud < handle
                     obj.N = length(obj.coords);
                 end
                 
-                NInterior = obj.N
+                NInterior = obj.N;
                 
                 hBnd = 1/sqrt(obj.N);
                 x_bottom = obj.lbx:hBnd:obj.ubx;

@@ -81,7 +81,7 @@ classdef Solver < handle
           disp('Setting up matrix...')
           obj.matrix = sparse(pointcloud.N,pointcloud.N);
 
-          for i=1:pointcloud.N
+          parfor i=1:pointcloud.N
              if ( pointcloud.ibound(i)==0 ) 
                 stencil{i} = obj.setupStencil(pointcloud,i);
              end
