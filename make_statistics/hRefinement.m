@@ -1,7 +1,7 @@
 
 addpath('..')
 
-x=0.01:0.01:0.1; 
+x=0.09:0.01:0.1; 
 condition = zeros(length(x),1);
 size = zeros(length(x),1);
 eigmax = zeros(length(x),1);
@@ -11,7 +11,8 @@ diagdom = zeros(length(x),1);
 
 parfor i=1:length(x)
     x(i)
-    [A,rhs,sol]=ofpm_oo(x(i),0,0,1,1,0);
+    [A,rhs,sol,pointcloud]=ofpm_oo(x(i),0,0,1,1,0);
+    
     condition(i) = condest(A);
     size(i) = length(A);
     eigmin(i) = eigs(A,1,'sm');
@@ -20,17 +21,23 @@ parfor i=1:length(x)
     
     A_norm = A./diag(A);
     condition_norm(i) = condest(A_norm);
-    eigmin_norm(i) = eigs(A,1,'sm');
-    eigmax_norm(i) = eigs(A,1);
+    eigmin_norm(i) = eigs(A_norm,1,'sm');
+    eigmax_norm(i) = eigs(A_norm,1);
     diagdom(i) = measureDiagDom(A_norm);
+    
+    A_scaledBoundary = scaleBoundary(A,pointcloud.ibound);
+    condition_scaledBoundary(i) = condest(A_scaledBoundary);
+    eigmin_scaledBoundary(i) = eigs(A_scaledBoundary,1,'sm');
+    eigmax_scaledBoundary(i) = eigs(A_scaledBoundary,1);
+    diagdom_scaledBoundary(i) = measureDiagDom(A_scaledBoundary);
     
     matrizen{i} = A;
 end
 
 figure;
-plot(size,condition,'s',size,condition_norm,'s');
+plot(size,condition,'s',size,condition_norm,'s',size,condition_scaledBoundary,'s');
 title("Condition Numbers");
-legend("Unscaled","Normalized");
+legend("Unscaled","Normalized","Scaled Boundary");
 legend('Location','northwest');
 xlabel("Matrix Size");
 figure;
@@ -45,8 +52,13 @@ title("Eigenvalues of Normalized Systems (absolute values)");
 legend("Min","Max");
 legend('Location','southwest');
 xlabel("Matrix Size");
+% figure;
+% plot(size,diagdom,'x');
+% title("Diagonal Dominance");
+% xlabel("Matrix Size");
 figure;
-plot(size,diagdom,'x');
-title("Diagonal Dominance");
+semilogy(size,eigmin_scaledBoundary,'v',size,eigmax_scaledBoundary,'^');
+title("Eigenvalues of System with Scaled Boundaries (absolute values)");
+legend("Min","Max");
+legend('Location','southwest');
 xlabel("Matrix Size");
-
