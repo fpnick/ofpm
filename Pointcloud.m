@@ -142,7 +142,7 @@ classdef Pointcloud < handle
             end
             
             % h->H isn't really correct here
-            coarsePointcloud = Pointcloud(obj.h/(sqrt(H_FACTOR)),obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
+            coarsePointcloud = Pointcloud(obj.h/(sqrt(1-H_FACTOR^2)),obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
             
         end
     end % METHODS

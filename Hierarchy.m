@@ -10,6 +10,7 @@ classdef Hierarchy < handle
     methods
       function obj = Hierarchy(finePointcloud)
         obj.pointclouds{1} = finePointcloud;
+        obj.pointclouds{1}.stats();
         i=1;
         while ( obj.pointclouds{i}.N > 50 )
            obj.pointclouds{i+1} = obj.pointclouds{i}.coarsen;
