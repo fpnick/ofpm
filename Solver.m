@@ -8,6 +8,7 @@ classdef Solver < handle
        rhs
        printlevel
        sol
+       hierarchy
 
     end
 
@@ -21,6 +22,8 @@ classdef Solver < handle
           if ( printlevel > 9 )
              obj.pointcloud.plot;
           end
+
+          obj.hierarchy = Hierarchy(obj.pointcloud);
 
        end
 

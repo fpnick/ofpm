@@ -131,7 +131,7 @@ classdef Pointcloud < handle
                 end
             end
             
-            coarsePointcloud = Pointcloud(obj.h,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
+            coarsePointcloud = Pointcloud(obj.h*H_FACTOR,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
             
         end
     end % METHODS
