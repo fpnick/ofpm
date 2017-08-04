@@ -31,8 +31,8 @@ classdef Solver < handle
 
            
           for i=1:obj.hierarchy.depth
-             obj.setupMatrix(obj.pointcloud,i);
-             obj.setupRHS(obj.pointcloud,i);
+             obj.setupMatrix(obj.hierarchy.pointclouds{i},i);
+             obj.setupRHS(obj.hierarchy.pointclouds{i},i);
           end
 
           % Solve system
