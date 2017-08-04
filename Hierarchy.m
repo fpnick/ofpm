@@ -4,6 +4,7 @@ classdef Hierarchy < handle
 
     properties
       pointclouds
+      depth
     end
 
     methods
@@ -19,6 +20,7 @@ classdef Hierarchy < handle
               break;
            end
         end
+        obj.depth = length(obj.pointclouds);
       end
     end
 

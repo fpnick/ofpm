@@ -4,8 +4,8 @@ classdef Solver < handle
 
     properties
        pointcloud
-       matrix
-       rhs
+       matrices
+       rhss
        printlevel
        sol
        hierarchy
@@ -30,12 +30,14 @@ classdef Solver < handle
        function advance(obj)
 
            
-          obj.setupMatrix(obj.pointcloud);
-          obj.setupRHS(obj.pointcloud);
+          for i=1:obj.hierarchy.depth
+             obj.setupMatrix(obj.pointcloud,i);
+             obj.setupRHS(obj.pointcloud,i);
+          end
 
           % Solve system
           disp('Solving linear system...')
-          obj.sol = obj.matrix \ obj.rhs;
+          obj.sol = obj.matrices{1} \ obj.rhss{1};
 
           if ( obj.printlevel > 4 )
              obj.plotSolution(obj.pointcloud,obj.sol)
@@ -45,8 +47,8 @@ classdef Solver < handle
     end
 
     methods (Access=private)
-       function rhs = setupRHS(obj,pointcloud)
-          disp('Setting up RHS...')
+       function rhs = setupRHS(obj,pointcloud,level)
+          disp(sprintf('Setting up rhs fro level %d',level))
           rhs = zeros(pointcloud.N,1);
           for i=1:pointcloud.N
               if ( ~pointcloud.ibound(i) )
@@ -55,7 +57,7 @@ classdef Solver < handle
                   rhs(i) = obj.bcFunction(pointcloud.coords(i,:));
               end
           end
-          obj.rhs = rhs;
+          obj.rhss{level} = rhs;
        end
           
        function f = loadFunction(obj,point)
@@ -81,8 +83,8 @@ classdef Solver < handle
           u = sin(2*pi*x) * sin(2*pi*y);
        end
 
-       function setupMatrix(obj,pointcloud)
-          disp('Setting up matrix...')
+       function setupMatrix(obj,pointcloud,level)
+          disp(sprintf('Setting up matrix for level %d',level))
           %obj.matrix = sparse(pointcloud.N,pointcloud.N);
 
           parfor i=1:pointcloud.N
@@ -125,7 +127,7 @@ classdef Solver < handle
              end
           end
 
-          obj.matrix=sparse(row,col,val);
+          obj.matrices{level}=sparse(row,col,val);
 
        end
 

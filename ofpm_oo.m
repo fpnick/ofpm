@@ -5,8 +5,8 @@ function [ A,rhs,sol,pointcloud ] = ofpm_oo( h, lbx,lby,ubx,uby,printlevel )
 solver=Solver(h,lbx,lby,ubx,uby,printlevel);
 solver.advance();
 
-A=solver.matrix;
-rhs=solver.rhs;
+A=solver.matrices{1};
+rhs=solver.rhss{1};
 sol=solver.sol;
 pointcloud = solver.pointcloud;
 
