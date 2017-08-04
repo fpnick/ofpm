@@ -48,7 +48,7 @@ classdef Solver < handle
 
     methods (Access=private)
        function rhs = setupRHS(obj,pointcloud,level)
-          disp(sprintf('Setting up rhs fro level %d',level))
+          disp(sprintf('Setting up rhs for level %d',level))
           rhs = zeros(pointcloud.N,1);
           for i=1:pointcloud.N
               if ( ~pointcloud.ibound(i) )
