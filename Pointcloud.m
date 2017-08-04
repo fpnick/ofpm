@@ -110,7 +110,7 @@ classdef Pointcloud < handle
         end
         
         function coarsePointcloud = coarsen(obj)
-            H_FACTOR=2;
+            H_FACTOR=2; % This is the factor that deremines the coarsening rate
             level = zeros(obj.N,1);
             for i=1:obj.N
                 if ( level(i) == 0 )
@@ -123,6 +123,7 @@ classdef Pointcloud < handle
                 end
             end
             
+            % *H_FACTOR isn't 100% correct here...
             coarsePointcloud = Pointcloud(obj.h*H_FACTOR,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
             
         end
