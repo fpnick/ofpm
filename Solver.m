@@ -37,7 +37,9 @@ classdef Solver < handle
 
           % Solve system
           disp('Solving linear system...')
+          tic
           obj.sol = obj.matrices{1} \ obj.rhss{1};
+          toc
 
           if ( obj.printlevel > 4 )
              obj.plotSolution(obj.pointcloud,obj.sol)
@@ -85,6 +87,7 @@ classdef Solver < handle
 
        function setupMatrix(obj,pointcloud,level)
           disp(sprintf('Setting up matrix for level %d',level))
+          tic
           %obj.matrix = sparse(pointcloud.N,pointcloud.N);
 
           parfor i=1:pointcloud.N
@@ -128,6 +131,7 @@ classdef Solver < handle
           end
 
           obj.matrices{level}=sparse(row,col,val);
+          toc
 
        end
 
