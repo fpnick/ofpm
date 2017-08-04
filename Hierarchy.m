@@ -22,6 +22,19 @@ classdef Hierarchy < handle
         end
         obj.depth = length(obj.pointclouds);
       end
+
+      function plot(obj,depth)
+        figure;
+        hold on;
+
+        for i=1:depth
+           plot(obj.pointclouds{i}.coords(:,1),obj.pointclouds{i}.coords(:,2),'.')
+        end
+        legend('Location','northwest');
+
+        hold off;
+
+      end
     end
 
     methods (Access=private)
