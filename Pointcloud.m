@@ -108,6 +108,15 @@ classdef Pointcloud < handle
             figure;
             plot(obj.coords(:,1),obj.coords(:,2),'.');
         end
+
+        function drawStar(obj,index)
+            obj.plot();
+            hold on;
+            A=[obj.coords(index,1)*ones(1,length(obj.neighbourLists{index}));obj.coords(obj.neighbourLists{index},1)'];
+            B=[obj.coords(index,2)*ones(1,length(obj.neighbourLists{index}));obj.coords(obj.neighbourLists{index},2)'];
+            line(A,B);
+            hold off;
+        end
         
         function coarsePointcloud = coarsen(obj)
             H_FACTOR=2; % This is the factor that deremines the coarsening rate
