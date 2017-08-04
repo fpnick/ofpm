@@ -89,14 +89,6 @@ classdef Pointcloud < handle
                     end
                 end
             end
-            %ptr=0;
-            %index2activeIndex=zeros(obj.N,1);
-            %for i = 1:obj.N
-            %    if ( is_active(i) )
-            %        ptr=ptr+1;
-            %    end
-            %    index2activeIndex(i) = ptr;
-            %end
             obj.N = sum(is_active);
             obj.coords = [obj.coords(find(is_active),1),obj.coords(find(is_active),2)];
             obj.findNeighbours;

@@ -10,14 +10,5 @@ rhs=solver.rhss{1};
 sol=solver.sol;
 pointcloud = solver.pointcloud;
 
-%pointcloud.plot;
-%figure;
-%coarsecloud.plot;
-
-% TODO Write a class "solver" that uses the pointcloud(s) to set up the
-% matrix(matrices)
-
-
-
 end
 
