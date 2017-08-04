@@ -15,6 +15,7 @@ classdef Hierarchy < handle
            obj.pointclouds{i+1} = obj.pointclouds{i}.coarsen;
            obj.pointclouds{i+1}.findNeighbours();
            obj.pointclouds{i+1}.organize;
+           obj.pointclouds{i+1}.stats();
            i=i+1;
            if ( i>5 ) 
               break;
@@ -33,8 +34,8 @@ classdef Hierarchy < handle
         legend('Location','northwest');
 
         hold off;
-
       end
+
     end
 
     methods (Access=private)

@@ -117,23 +117,32 @@ classdef Pointcloud < handle
             line(A,B);
             hold off;
         end
+
+        function stats(obj)
+            avgNeighbours = 0;
+            for i=1:obj.N
+               avgNeighbours = avgNeighbours + length(obj.neighbourLists{i});
+            end
+            avgNeighbours = avgNeighbours / obj.N;
+            disp(sprintf('Average neighbours: %f', avgNeighbours));
+        end
         
         function coarsePointcloud = coarsen(obj)
-            H_FACTOR=2; % This is the factor that deremines the coarsening rate
+            H_FACTOR=0.5; % This is the factor that deremines the coarsening rate
             level = zeros(obj.N,1);
             for i=1:obj.N
                 if ( level(i) == 0 )
                     level(i) = 2;
                     for j=2:length(obj.neighbourLists{i})
-                        if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h/H_FACTOR )
+                        if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*H_FACTOR )
                             level(obj.neighbourLists{i}(j)) = 1;
                         end
                     end
                 end
             end
             
-            % *H_FACTOR isn't 100% correct here...
-            coarsePointcloud = Pointcloud(obj.h*H_FACTOR,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
+            % h->H isn't really correct here
+            coarsePointcloud = Pointcloud(obj.h/(sqrt(H_FACTOR)),obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
             
         end
     end % METHODS
