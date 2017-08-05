@@ -124,18 +124,23 @@ classdef Pointcloud < handle
                avgNeighbours = avgNeighbours + length(obj.neighbourLists{i});
             end
             avgNeighbours = avgNeighbours / obj.N;
+            fprintf('Pointcloud size: %d\n', obj.N);
             fprintf('Average neighbours: %f\n', avgNeighbours);
         end
         
-        function coarsePointcloud = coarsen(obj)
-            H_FACTOR=0.5; % This is the factor that deremines the coarsening rate
+        function [ coarsePointcloud, fine2coarse, coarse2fine ] = coarsen(obj)
+            H_FACTOR=0.3; % This is the factor that deremines the coarsening rate
             level = zeros(obj.N,1);
             nC = 0;
-            nF = 0;
+            nF = 0;            
+            fine2coarse = zeros(obj.N);
+            coarse2fine = zeros(nC);
             for i=1:obj.N
                 if ( level(i) == 0 )
                     level(i) = 2;
                     nC = nC + 1;
+                    coarse2fine(nC) = i;
+                    fine2coarse(i) = nC;
                     for j=2:length(obj.neighbourLists{i})
                         if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*H_FACTOR )
                             level(obj.neighbourLists{i}(j)) = 1;
@@ -143,7 +148,7 @@ classdef Pointcloud < handle
                         end
                     end
                 end
-            end
+            end             
             
             % h->H isn't really correct here
             coarsePointcloud = Pointcloud(sqrt((nC+nF)/nC)*obj.h,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
