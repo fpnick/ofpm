@@ -1,7 +1,7 @@
 
 addpath('..')
 
-X=1:1:3
+X=1:1:11
 H=0.05
 
 condition = zeros(length(X),1);
