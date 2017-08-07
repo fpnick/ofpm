@@ -22,12 +22,19 @@ function [ B ] = scaleBoundary( A, ibound )
     
     scalFactor = innerAvg/bndAvg;
     
-    B = A;
-    for i=1:max(size(B))
-        if ( ibound(i)>-1 )
-            B(i,:) = B(i,:) * scalFactor*100000;
+    tmp = ibound*scalFactor;
+    for i=1:length(tmp)
+        if ( tmp(i) == 0 )
+            tmp(i) = 1;
         end
     end
+    
+    B = bsxfun(@times,A,tmp);
+%     for i=1:max(size(B))
+%         if ( ibound(i)>0 )
+%             B(i,:) = B(i,:) * scalFactor;
+%         end
+%     end
             
 
 end
