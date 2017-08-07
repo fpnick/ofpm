@@ -35,7 +35,7 @@ parfor i=1:length(x)
 end
 
 figure;
-plot(size,condition,'s',size,condition_norm,'s',size,condition_scaledBoundary,'s');
+plot(size,condition,'o',size,condition_norm,'s',size,condition_scaledBoundary,'x');
 title("Condition Numbers");
 legend("Unscaled","Normalized","Scaled Boundary");
 legend('Location','northwest');
