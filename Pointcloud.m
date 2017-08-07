@@ -92,6 +92,7 @@ classdef Pointcloud < handle
             obj.N = sum(is_active);
             obj.coords = [obj.coords(find(is_active),1),obj.coords(find(is_active),2)];
             obj.findNeighbours;
+            obj.ibound=zeros(obj.N,1);
             for i=1:obj.N
                if ( obj.isBoundary(obj.coords(i,:)) )
                    obj.ibound(i) = 1;
