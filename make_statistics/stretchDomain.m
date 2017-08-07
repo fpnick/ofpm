@@ -13,7 +13,7 @@ diagdom = zeros(length(X),1);
 
 parfor i=1:length(X)
     X(i)
-    [A,rhs,sol,pointcloud]=ofpm_oo(H,0,0,X(i),X(i),0);
+    [A,rhs,sol,pointcloud]=ofpm_oo(H,0,0,X(i),1,0);
     condition(i) = condest(A);
     size(i) = length(A);
     eigmin(i) = eigs(A,1,'sm');
