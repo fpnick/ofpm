@@ -9,6 +9,7 @@ classdef Solver < handle
        printlevel
        sol
        hierarchy
+       useMultigrid=1
 
     end
 
@@ -38,7 +39,12 @@ classdef Solver < handle
           % Solve system
           disp('Solving linear system...')
           tic
-          obj.sol = obj.matrices{1} \ obj.rhss{1};
+          if ( ~ obj.useMultigrid )
+             obj.sol = obj.matrices{1} \ obj.rhss{1};
+          else
+             mg = Multigrid(obj);
+             mg.solve(zeros(obj.pointcloud.N,1));
+          end
           toc
 
           if ( obj.printlevel > 4 )
