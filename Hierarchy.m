@@ -1,5 +1,5 @@
 classdef Hierarchy < handle
-    %HIERARCHY represents a the overall solver
+    %HIERARCHY represents a hierarchy of pointclouds.
     %   Detailed explanation goes here
 
     properties
