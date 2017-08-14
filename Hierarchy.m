@@ -14,7 +14,7 @@ classdef Hierarchy < handle
         obj.pointclouds{1} = finePointcloud;
         obj.pointclouds{1}.stats();
         i=1;
-        while ( obj.pointclouds{i}.N > 200000 )
+        while ( obj.pointclouds{i}.N > 2000 )
            [ obj.pointclouds{i+1}, obj.fine2coarse{i+1}, obj.coarse2fine{i+1} ] = obj.pointclouds{i}.coarsen;
            obj.pointclouds{i+1}.findNeighbours();
 %            obj.pointclouds{i+1}.organize;

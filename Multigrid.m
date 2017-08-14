@@ -5,7 +5,8 @@ classdef Multigrid < handle
     properties
 
       solver % Note that solver contains the complete hierarchy + matrices
-      smoother = 1
+      SMOOTHER = 1    % 1: Gauss-Seidel
+      RESTRICTION = 1 % 1: Inclusion
       nPreSmooth = 1
       nPostSmooth = 1
     end
@@ -37,14 +38,14 @@ classdef Multigrid < handle
             u = obj.solver.matrices{level} \ f;
          else
             u = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
-            res = norm( obj.solver.matrices{level}*u-f, 2);
-            res = obj.restrict( res, level);
+            resVec = obj.solver.matrices{level}*u-f;
+            resVecCoarse = obj.restrict( resVec, level);
          end
          
       end
 
       function u = smooth (obj,A, u, f, iter)
-         if ( obj.smoother == 1 ) 
+         if ( obj.SMOOTHER == 1 ) 
             L=tril(A,0);
             R=triu(A,1);
             u0 = u;
@@ -55,8 +56,16 @@ classdef Multigrid < handle
          end
       end
 
-      function R = restrict( obj, res, level)
-         R = zeros( obj.solver.hierarchy.pointclouds{level+1}.N, 1);
+      function R = restrict( obj, resVec, level)
+         NCoarse = obj.solver.hierarchy.pointclouds{level+1}.N;
+         R = zeros( NCoarse, 1);
+
+         if ( obj.RESTRICTION == 1 )
+            for i=1:NCoarse
+               R = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
+            end
+         end
+
       end
     end
 
