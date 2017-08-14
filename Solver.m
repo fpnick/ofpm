@@ -43,7 +43,7 @@ classdef Solver < handle
              obj.sol = obj.matrices{1} \ obj.rhss{1};
           else
              mg = Multigrid(obj);
-             mg.solve(zeros(obj.pointcloud.N,1),0.01);
+             obj.sol = mg.solve(zeros(obj.pointcloud.N,1),0.01);
           end
           toc
 
