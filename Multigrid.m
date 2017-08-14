@@ -34,7 +34,7 @@ classdef Multigrid < handle
          if ( level == obj.solver.hierarchy.depth )
             % Coarsest level => direct solve
             disp('Direct solve');
-            u = obj.solver.matrices{level} \ obj.solver.rhss{level};
+            u = obj.solver.matrices{level} \ f;
          else
             u = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
             res = norm( obj.solver.matrices{level}*u-f, 2);
