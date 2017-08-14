@@ -7,6 +7,7 @@ classdef Multigrid < handle
       solver % Note that solver contains the complete hierarchy + matrices
       SMOOTHER = 1    % 1: Gauss-Seidel
       RESTRICTION = 1 % 1: Inclusion
+      INTERPOLATION = 1 % 1: Weighed based on distance
       nPreSmooth = 1
       nPostSmooth = 1
     end
@@ -40,6 +41,9 @@ classdef Multigrid < handle
             u = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
             resVec = obj.solver.matrices{level}*u-f;
             resVecCoarse = obj.restrict( resVec, level);
+            correction = zeros(length(resVecCoarse),1);
+            correction = obj.cycle( level+1, correction, resVecCoarse);
+            correctionFine = obj.interpolate( correction, level+1);
          end
          
       end
@@ -62,10 +66,31 @@ classdef Multigrid < handle
 
          if ( obj.RESTRICTION == 1 )
             for i=1:NCoarse
-               R = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
+               R(i) = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
             end
          end
 
+      end
+
+      function r = interpolate( obj, correction, level)
+         % level refers to the level that is interpolated FROM
+         NFine = obj.solver.hierarchy.pointclouds{level-1}.N;
+         r = zeros (NFine, 1);
+
+         if ( obj.INTERPOLATION == 1 )
+            for i=1:NFine
+               neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
+               distanceList = obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
+               nNeighbours = length(neighbourList);
+
+               for j=1,nNeighbours
+                  if  ( obj.solver.hierarchy.fine2coarse{level-1}(neighbourList(j)) ~= 0 )
+                     sumDistances = sumDistances + distanceList(j);
+                     fprintf('%i is a coarse grid neighbour of %i',j,i)
+                  end
+               end
+            end
+         end
       end
     end
 
