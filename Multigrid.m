@@ -21,7 +21,7 @@ classdef Multigrid < handle
          res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
          while ( res > tol )
             u = obj.cycle( 1, u, obj.solver.rhss{1});
-            res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2)
+            res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
          end
 
          solution = u;
@@ -35,9 +35,7 @@ classdef Multigrid < handle
          if ( level == obj.solver.hierarchy.depth )
             % Coarsest level => direct solve
             disp('Direct solve');
-            u = f \ obj.solver.matrices{level};
-            u= u';
-            res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2)
+            u = obj.solver.matrices{level} \ obj.solver.rhss{level};
          else
             u = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
             res = norm( obj.solver.matrices{level}*u-f, 2);
