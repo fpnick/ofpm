@@ -8,8 +8,8 @@ classdef Multigrid < handle
       SMOOTHER = 1    % 1: Gauss-Seidel
       RESTRICTION = 1 % 1: Inclusion
       INTERPOLATION = 1 % 1: Weighed based on distance
-      nPreSmooth = 0
-      nPostSmooth = 0
+      nPreSmooth = 1
+      nPostSmooth = 1
     end
 
     methods
