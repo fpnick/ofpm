@@ -7,6 +7,7 @@ classdef Hierarchy < handle
       depth
       fine2coarse
       coarse2fine
+      MAXLEVELS = 2
     end
 
     methods
@@ -14,11 +15,11 @@ classdef Hierarchy < handle
         obj.pointclouds{1} = finePointcloud;
         obj.pointclouds{1}.stats();
         i=1;
-        while ( obj.pointclouds{i}.N > 2000 )
+        while ( obj.pointclouds{i}.N > 200 && i < obj.MAXLEVELS )
            [ obj.pointclouds{i+1}, obj.fine2coarse{i+1}, obj.coarse2fine{i+1} ] = obj.pointclouds{i}.coarsen;
            obj.pointclouds{i+1}.findNeighbours();
 %            obj.pointclouds{i+1}.organize;
-           obj.pointclouds{i+1}.stats();
+           obj.pointclouds{i+1}.stats()
            i=i+1;
         end
         obj.depth = length(obj.pointclouds);
