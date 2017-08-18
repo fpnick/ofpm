@@ -74,6 +74,8 @@ classdef Multigrid < handle
 
       function r = interpolate( obj, correction, level)
          % level refers to the level that is interpolated FROM
+         % NOTE: Setup of interpolation should be done ONCE, not in every
+         % iteration!
          NFine = obj.solver.hierarchy.pointclouds{level-1}.N;
          r = zeros (NFine, 1);
 
@@ -83,10 +85,10 @@ classdef Multigrid < handle
                distanceList = obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
                nNeighbours = length(neighbourList);
 
-               for j=1,nNeighbours
-                  if  ( obj.solver.hierarchy.fine2coarse{level-1}(neighbourList(j)) ~= 0 )
+               sumDistances = 0;
+               for j=1:nNeighbours
+                  if  ( obj.solver.hierarchy.fine2coarse{level}(neighbourList(j)) ~= 0 )
                      sumDistances = sumDistances + distanceList(j);
-                     fprintf('%i is a coarse grid neighbour of %i',j,i)
                   end
                end
             end
