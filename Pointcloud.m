@@ -13,7 +13,7 @@ classdef Pointcloud < handle
         neighbourLists
         distanceLists
         ibound
-        COARSENING = 1
+        COARSENING = 0
     end
     
     methods
@@ -132,7 +132,12 @@ classdef Pointcloud < handle
         
         function [ coarsePointcloud, fine2coarse, coarse2fine ] = coarsen(obj)
 
-            if ( obj.COARSENING == 1 )
+            if ( obj.COARSENING == 0 )
+               coarsePointcloud = obj;
+               fine2coarse = 1:obj.N;
+               coarse2fine = fine2coarse;
+
+            elseif ( obj.COARSENING == 1 )
                H_FACTOR=0.3; % This is the factor that deremines the coarsening rate
                level = zeros(obj.N,1);
                nC = 0;
