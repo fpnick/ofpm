@@ -8,8 +8,8 @@ classdef Multigrid < handle
       SMOOTHER = 1    % 1: Gauss-Seidel
       RESTRICTION = 1 % 1: Inclusion
       INTERPOLATION = 1 % 1: Weighed based on distance
-      nPreSmooth = 1
-      nPostSmooth = 1
+      nPreSmooth = 0
+      nPostSmooth = 0
     end
 
     methods
@@ -19,7 +19,7 @@ classdef Multigrid < handle
 
       function solution = solve(obj,u,tol)
 
-         res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
+         res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2)
          tol_abs = res * tol
          iterations = 0;
          while ( res > tol_abs )
@@ -87,15 +87,24 @@ classdef Multigrid < handle
 
          if ( obj.INTERPOLATION == 1 )
             for i=1:NFine
-               neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
-               distanceList = obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
-               nNeighbours = length(neighbourList);
+               if ( obj.solver.hierarchy.fine2coarse{level}(i) == 0 )
+                  neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
+                  distanceList = obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
+                  nNeighbours = length(neighbourList);
 
-               sumDistances = 0;
-               for j=1:nNeighbours
-                  if  ( obj.solver.hierarchy.fine2coarse{level}(neighbourList(j)) ~= 0 )
-                     sumDistances = sumDistances + distanceList(j);
+                  sumDistances = 0;
+                  for j=1:nNeighbours
+                     if  ( obj.solver.hierarchy.fine2coarse{level}(neighbourList(j)) ~= 0 )
+                        sumDistances = sumDistances + distanceList(j);
+                     end
                   end
+                  for j=1:nNeighbours
+                     if  ( obj.solver.hierarchy.fine2coarse{level}(neighbourList(j)) ~= 0 )
+                        r(i) = r(i) + correction(neighbourList(j)) * (distanceList(j)/sumDistances);
+                     end
+                  end
+               else
+                  r(i) = correction(obj.solver.hierarchy.fine2coarse{level}(i));
                end
             end
          end
