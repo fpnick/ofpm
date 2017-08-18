@@ -45,6 +45,7 @@ classdef Multigrid < handle
             correction = zeros(length(resVecCoarse),1);
             correction = obj.cycle( level+1, correction, resVecCoarse);
             correctionFine = obj.interpolate( correction, level+1);
+            u = u + correctionFine;
          end
          
       end
