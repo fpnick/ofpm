@@ -19,17 +19,18 @@ classdef Multigrid < handle
 
       function solution = solve(obj,u,tol)
 
-         res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2)
-         tol_abs = res * tol
+         res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
+         fprintf('Initial residual: %1.3e\n', res);
+         tol_abs = res * tol;
          iterations = 0;
          while ( res > tol_abs )
             u = obj.cycle( 1, u, obj.solver.rhss{1});
-            res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2)
+            res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
             iterations = iterations + 1;
+            fprintf('Residual after iteration %i: %1.3e\n', iterations,res);
          end
 
          solution = u;
-         fprintf('Iterations required: %i\n', iterations);
          rho = tol^(1/iterations);
          fprintf('rho = %1.3f\n', rho);
 
@@ -41,7 +42,7 @@ classdef Multigrid < handle
       function u = cycle( obj, level, u, f )
          if ( level == obj.solver.hierarchy.depth )
             % Coarsest level => direct solve
-            disp('Direct solve');
+            % disp('Direct solve');
             u = obj.solver.matrices{level} \ f;
          else
             u              = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
