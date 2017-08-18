@@ -83,28 +83,29 @@ classdef Multigrid < handle
          % NOTE: Setup of interpolation should be done ONCE, not in every
          % iteration!
          NFine = obj.solver.hierarchy.pointclouds{level-1}.N;
+         fine2coarse = obj.solver.hierarchy.fine2coarse{level};
          r = zeros (NFine, 1);
 
          if ( obj.INTERPOLATION == 1 )
             for i=1:NFine
-               if ( obj.solver.hierarchy.fine2coarse{level}(i) == 0 )
+               if ( fine2coarse(i) == 0 )
                   neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
                   distanceList = obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
                   nNeighbours = length(neighbourList);
 
                   sumDistances = 0;
                   for j=1:nNeighbours
-                     if  ( obj.solver.hierarchy.fine2coarse{level}(neighbourList(j)) ~= 0 )
+                     if  ( fine2coarse(neighbourList(j)) ~= 0 )
                         sumDistances = sumDistances + distanceList(j);
                      end
                   end
                   for j=1:nNeighbours
-                     if  ( obj.solver.hierarchy.fine2coarse{level}(neighbourList(j)) ~= 0 )
-                        r(i) = r(i) + correction(neighbourList(j)) * (distanceList(j)/sumDistances);
+                     if  ( fine2coarse(neighbourList(j)) ~= 0 )
+                        r(i) = r(i) + correction(fine2coarse(neighbourList(j))) * (distanceList(j)/sumDistances);
                      end
                   end
                else
-                  r(i) = correction(obj.solver.hierarchy.fine2coarse{level}(i));
+                  r(i) = correction(fine2coarse(i));
                end
             end
          end
