@@ -20,6 +20,7 @@ classdef Multigrid < handle
       function solution = solve(obj,u,tol)
 
          res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
+         res0 = res;
          fprintf('Initial residual: %1.3e\n', res);
          tol_abs = res * tol;
          iterations = 0;
@@ -31,7 +32,7 @@ classdef Multigrid < handle
          end
 
          solution = u;
-         rho = tol^(1/iterations);
+         rho = (res/res0)^(1/iterations);
          fprintf('rho = %1.3f\n', rho);
 
       end
