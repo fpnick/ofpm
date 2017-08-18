@@ -1,6 +1,7 @@
 classdef Multigrid < handle
-    %MULTIGRID represents a multigrid solver for the linear system.
-    %   Detailed explanation goes here
+    % MULTIGRID   represents a multigrid solver for the linear system.
+    %    Represents the core multigrid solver. Assumes though, that the hierachy
+    %    has already been created in the 'solver' object. 
 
     properties
 
@@ -23,6 +24,10 @@ classdef Multigrid < handle
       end
 
       function solution = solve(obj,u,tol)
+      % SOLVE  Solve the linear system given by the hierachy in 'solver'
+      %     solution = solve(u,tol) solves with a residual reduction of tol
+      %                             starting with initial guess u.
+
          res        = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
          res0       = res;
          tol_abs    = res * tol;
@@ -51,6 +56,10 @@ classdef Multigrid < handle
     methods (Access=private)
 
       function u = cycle( obj, level, u, f )
+      % CYCLE  Performe one cycle from level downards.
+      %     u = u(level,u,f)  Perform one cycle from level downwards using the
+      %                       RHS f and the initial guess u.
+
          if ( level == obj.solver.hierarchy.depth )
             % Coarsest level => direct solve
             u = obj.solver.matrices{level} \ f;
@@ -67,6 +76,11 @@ classdef Multigrid < handle
       end
 
       function u = smooth (obj,A, u, f, iter)
+      % SMOOTH  Smoother
+      %     u = smooth(A,u,f,iter)  Apply iter iterations of smoother   
+      %                             on Au=f. The smoother type is choosen by
+      %                             obj.SMOOTHER.
+
          if ( obj.SMOOTHER == 1 ) 
             L=tril(A,0);
             R=triu(A,1);
@@ -79,6 +93,10 @@ classdef Multigrid < handle
       end
 
       function R = restrict( obj, resVec, level)
+      % RESTRICT  Restriction
+      %     R = restrict(resVec,level) Restrict the residual vector resVec from
+      %                                level level to level level+1
+
          NCoarse = obj.solver.hierarchy.pointclouds{level+1}.N;
          R       = zeros( NCoarse, 1);
 
@@ -90,9 +108,11 @@ classdef Multigrid < handle
       end
 
       function r = interpolate( obj, correction, level)
-         % level refers to the level that is interpolated FROM
-         % NOTE: Setup of interpolation should be done ONCE, not in every
-         % iteration!
+      % INTERPOLATE  Interpolation
+      %     r = interpolate(correction,level) Interpolate correction from level
+      %                                       level to level level-1
+      %     TODO: Setup of interpolation should be done ONCE, not in every
+      %     iteration!
          NFine       = obj.solver.hierarchy.pointclouds{level-1}.N;
          fine2coarse = obj.solver.hierarchy.fine2coarse{level};
          r           = zeros (NFine, 1);
