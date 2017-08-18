@@ -48,7 +48,7 @@ classdef Multigrid < handle
             correction     = zeros(length(resVecCoarse),1);
             correction     = obj.cycle( level+1, correction, resVecCoarse);
             correctionFine = obj.interpolate( correction, level+1);
-            u              = u + correctionFine;
+            u              = u - correctionFine;
             u              = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPostSmooth);
          end
          
@@ -110,7 +110,4 @@ classdef Multigrid < handle
          end
       end
     end
-
-
-
 end %class
