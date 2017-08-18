@@ -139,7 +139,7 @@ classdef Pointcloud < handle
                coarse2fine = fine2coarse;
 
             elseif ( obj.COARSENING == 1 )
-               H_FACTOR=0.3; % This is the factor that deremines the coarsening rate
+               H_FACTOR=0.18; % This is the factor that deremines the coarsening rate
                level = zeros(obj.N,1);
                nC = 0;
                nF = 0;            
