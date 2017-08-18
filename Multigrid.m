@@ -42,13 +42,14 @@ classdef Multigrid < handle
             disp('Direct solve');
             u = obj.solver.matrices{level} \ f;
          else
-            u = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
-            resVec = obj.solver.matrices{level}*u-f;
-            resVecCoarse = obj.restrict( resVec, level);
-            correction = zeros(length(resVecCoarse),1);
-            correction = obj.cycle( level+1, correction, resVecCoarse);
+            u              = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
+            resVec         = obj.solver.matrices{level}*u-f;
+            resVecCoarse   = obj.restrict( resVec, level);
+            correction     = zeros(length(resVecCoarse),1);
+            correction     = obj.cycle( level+1, correction, resVecCoarse);
             correctionFine = obj.interpolate( correction, level+1);
-            u = u + correctionFine;
+            u              = u + correctionFine;
+            u              = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPostSmooth);
          end
          
       end
