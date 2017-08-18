@@ -13,7 +13,7 @@ classdef Pointcloud < handle
         neighbourLists
         distanceLists
         ibound
-        COARSENING = 0
+        COARSENING = 1
     end
     
     methods
