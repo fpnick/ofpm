@@ -20,9 +20,10 @@ classdef Multigrid < handle
       function solution = solve(obj,u,tol)
 
          res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
-         while ( res > tol )
+         tol_abs = res * tol
+         while ( res > tol_abs )
             u = obj.cycle( 1, u, obj.solver.rhss{1});
-            res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
+            res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2)
          end
 
          solution = u;
