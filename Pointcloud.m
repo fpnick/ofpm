@@ -13,6 +13,7 @@ classdef Pointcloud < handle
         neighbourLists
         distanceLists
         ibound
+        COARSENING = 1
     end
     
     methods
@@ -130,29 +131,33 @@ classdef Pointcloud < handle
         end
         
         function [ coarsePointcloud, fine2coarse, coarse2fine ] = coarsen(obj)
-            H_FACTOR=0.3; % This is the factor that deremines the coarsening rate
-            level = zeros(obj.N,1);
-            nC = 0;
-            nF = 0;            
-            fine2coarse = zeros(obj.N);
-            coarse2fine = zeros(nC);
-            for i=1:obj.N
-                if ( level(i) == 0 )
-                    level(i) = 2;
-                    nC = nC + 1;
-                    coarse2fine(nC) = i;
-                    fine2coarse(i) = nC;
-                    for j=2:length(obj.neighbourLists{i})
-                        if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*H_FACTOR )
-                            level(obj.neighbourLists{i}(j)) = 1;
-                            nF = nF +1;
-                        end
-                    end
-                end
-            end             
-            
-            % h->H isn't really correct here
-            coarsePointcloud = Pointcloud(sqrt((nC+nF)/nC)*obj.h,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
+
+            if ( obj.COARSENING == 1 )
+               H_FACTOR=0.3; % This is the factor that deremines the coarsening rate
+               level = zeros(obj.N,1);
+               nC = 0;
+               nF = 0;            
+               fine2coarse = zeros(obj.N);
+               coarse2fine = zeros(nC);
+               for i=1:obj.N
+                   if ( level(i) == 0 )
+                       level(i) = 2;
+                       nC = nC + 1;
+                       coarse2fine(nC) = i;
+                       fine2coarse(i) = nC;
+                       for j=2:length(obj.neighbourLists{i})
+                           if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*H_FACTOR )
+                               level(obj.neighbourLists{i}(j)) = 1;
+                               nF = nF +1;
+                           end
+                       end
+                   end
+               end             
+               
+               % h->H isn't really correct here
+               coarsePointcloud = Pointcloud(sqrt((nC+nF)/nC)*obj.h,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
+
+            end
             
         end
     end % METHODS
