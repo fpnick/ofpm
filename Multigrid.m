@@ -30,6 +30,8 @@ classdef Multigrid < handle
 
          solution = u;
          fprintf('Iterations required: %i\n', iterations);
+         rho = tol^(1/iterations);
+         fprintf('rho = %1.3f\n', rho);
 
       end
     end
