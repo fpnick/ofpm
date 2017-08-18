@@ -21,12 +21,15 @@ classdef Multigrid < handle
 
          res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
          tol_abs = res * tol
+         iterations = 0;
          while ( res > tol_abs )
             u = obj.cycle( 1, u, obj.solver.rhss{1});
             res = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2)
+            iterations = iterations + 1;
          end
 
          solution = u;
+         fprintf('Iterations required: %i\n', iterations);
 
       end
     end
