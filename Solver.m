@@ -158,7 +158,7 @@ classdef Solver < handle
        function stencil = setupStencil(obj,pointcloud,i)
           n = max(size(pointcloud.neighbourLists{i}));
 
-          K = obj.setupK(pointcloud.coords(pointcloud.neighbourLists{i}(2:n),:),pointcloud.coords(i,:));
+          K = obj.setupK(pointcloud.coords(pointcloud.neighbourLists{i}(2:n),:),pointcloud.coords(i,:),pointcloud.h);
           W = obj.setupWeightMatrix(pointcloud.distanceLists{i}(2:n));
 
           b = [0;0;0;0;2;2]; % This determines, what operator is approximated!
@@ -167,7 +167,7 @@ classdef Solver < handle
           stencil = -W^2 * K * lambda';
        end
 
-       function K = setupK(obj, coords, p0 )
+       function K = setupK(obj, coords, p0, h )
           coords_tmp = coords - p0;
           K = [ ones(size(coords_tmp(:,1))), coords_tmp(:,1), coords_tmp(:,2), coords_tmp(:,1).*coords_tmp(:,2) , coords_tmp(:,1).^2 , coords_tmp(:,2).^2 ];
        end
