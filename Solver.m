@@ -159,7 +159,7 @@ classdef Solver < handle
           n = max(size(pointcloud.neighbourLists{i}));
 
           K = obj.setupK(pointcloud.coords(pointcloud.neighbourLists{i}(2:n),:),pointcloud.coords(i,:),pointcloud.h);
-          W = obj.setupWeightMatrix(pointcloud.distanceLists{i}(2:n));
+          W = obj.setupWeightMatrix(pointcloud.distanceLists{i}(2:n),pointcloud.h);
 
           b = [0;0;0;0;2;2]; % This determines, what operator is approximated!
 
@@ -172,11 +172,12 @@ classdef Solver < handle
           K = [ ones(size(coords_tmp(:,1))), coords_tmp(:,1), coords_tmp(:,2), coords_tmp(:,1).*coords_tmp(:,2) , coords_tmp(:,1).^2 , coords_tmp(:,2).^2 ];
        end
 
-       function [ W ] = setupWeightMatrix(obj,distances )
+       function [ W ] = setupWeightMatrix(obj, distances, h)
           %SETUPWEIGHTMATRIX Summary of this function goes here
           %   Detailed explanation goes here
           GAMMA = 4;
-          W = diag(exp(-GAMMA * distances.^2) - 0.0183);
+          r = distances/h;
+          W = diag(exp(-GAMMA * r.^2) - 0.0183);
        end
           
 
