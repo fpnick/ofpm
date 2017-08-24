@@ -43,13 +43,27 @@ classdef Solver < handle
              obj.sol = obj.matrices{1} \ obj.rhss{1};
           else
              mg = Multigrid(obj);
-             obj.sol = mg.solve(zeros(obj.pointcloud.N,1),10^(-3));
+             obj.sol = mg.solve(zeros(obj.pointcloud.N,1),10^(-8));
           end
           toc
 
           if ( obj.printlevel > 4 )
              obj.plotSolution(obj.pointcloud,obj.sol)
           end
+       end
+
+       function plotSolution(obj,pointcloud,sol,descr)
+          % disp('Plotting solution...')
+          [X,Y] = meshgrid(pointcloud.lbx:sqrt(1/pointcloud.N):pointcloud.ubx,pointcloud.lby:sqrt(1/pointcloud.N):pointcloud.uby);
+          Vq = griddata(pointcloud.coords(:,1),pointcloud.coords(:,2),sol,X,Y);
+          figure
+          mesh(X,Y,Vq);
+          hold on
+          plot3(pointcloud.coords(:,1),pointcloud.coords(:,2),sol,'o')
+          title(descr)
+          hold off
+          % figure
+          % contour(X,Y,Vq);
        end
 
     end
@@ -163,19 +177,6 @@ classdef Solver < handle
           %   Detailed explanation goes here
           GAMMA = 4;
           W = diag(exp(-GAMMA * distances.^2) - 0.0183);
-       end
-
-       function plotSolution(obj,pointcloud,sol)
-          disp('Plotting solution...')
-          [X,Y] = meshgrid(pointcloud.lbx:sqrt(1/pointcloud.N):pointcloud.ubx,pointcloud.lby:sqrt(1/pointcloud.N):pointcloud.uby);
-          Vq = griddata(pointcloud.coords(:,1),pointcloud.coords(:,2),sol,X,Y);
-          figure
-          mesh(X,Y,Vq);
-          hold on
-          plot3(pointcloud.coords(:,1),pointcloud.coords(:,2),sol,'o')
-          hold off
-          figure
-          contour(X,Y,Vq);
        end
           
 

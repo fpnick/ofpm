@@ -11,8 +11,8 @@ classdef Multigrid < handle
       SMOOTHER      = 1  % 1: Gauss-Seidel
       RESTRICTION   = 1  % 1: Inclusion
       INTERPOLATION = 1  % 1: Weighed based on distance
-      nPreSmooth    = 1  % n: Number of pre-smoothing steps
-      nPostSmooth   = 1  % n: Number of post-smoothing steps
+      nPreSmooth    = 10  % n: Number of pre-smoothing steps
+      nPostSmooth   = 10 % n: Number of post-smoothing steps
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,13 +35,13 @@ classdef Multigrid < handle
 
          fprintf('Initial residual: %1.3e\n', res);
          
-         while ( res > tol_abs )
+         % while ( res > tol_abs )
             u          = obj.cycle( 1, u, obj.solver.rhss{1});
             res        = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
             iterations = iterations + 1;
 
             fprintf('Residual after iteration %i: %1.3e\n', iterations,res);
-         end
+         % end
 
          solution = u;
          rho      = (res/res0)^(1/iterations);
@@ -59,19 +59,40 @@ classdef Multigrid < handle
       % CYCLE  Performe one cycle from level downards.
       %     u = u(level,u,f)  Perform one cycle from level downwards using the
       %                       RHS f and the initial guess u.
+         DEBUGLEVEL = 10;
 
          if ( level == obj.solver.hierarchy.depth )
             % Coarsest level => direct solve
             u = obj.solver.matrices{level} \ f;
          else
+            if DEBUGLEVEL>=10
+               solution = obj.solver.matrices{level} \ f;
+               err = u-solution;
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Error on level %i', level));
+            end
             u              = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
+            if DEBUGLEVEL>=10
+               err = u-solution;
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Presmoothed Error on level %i', level));
+            end
             resVec         = obj.solver.matrices{level}*u-f;
             resVecCoarse   = obj.restrict( resVec, level);
             correction     = zeros(length(resVecCoarse),1);
             correction     = obj.cycle( level+1, correction, resVecCoarse);
             correctionFine = obj.interpolate( correction, level+1);
+            if DEBUGLEVEL>=10
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},correctionFine,sprintf('Correction on level %i', level));
+            end
             u              = u - correctionFine;
+            if DEBUGLEVEL>=10
+               err = u-solution;
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Error after CGC on level %i', level));
+            end
             u              = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPostSmooth);
+            if DEBUGLEVEL>=10
+               err = u-solution;
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Postsmoothed error on level %i', level));
+            end
          end
       end
 
