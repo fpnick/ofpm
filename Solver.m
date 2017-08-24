@@ -88,7 +88,7 @@ classdef Solver < handle
           x=point(1,1);
           y=point(1,2);
 
-          %f = 0;
+          % f = 0;
           %f = -2*sin(x) * sin(y);
           f = -8*pi^2 * sin(2*pi*x) * sin(2*pi*y);
           %f = sin(2*pi*x) * sin(2*pi*y);
@@ -100,7 +100,7 @@ classdef Solver < handle
           x=point(1,1);
           y=point(1,2);
 
-          %u = 1;
+          % u = 1;
           %u = sin(x) * sin(y);
           u = sin(2*pi*x) * sin(2*pi*y);
        end
