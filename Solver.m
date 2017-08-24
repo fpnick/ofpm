@@ -48,7 +48,7 @@ classdef Solver < handle
           toc
 
           if ( obj.printlevel > 4 )
-             obj.plotSolution(obj.pointcloud,obj.sol)
+             obj.plotSolution(obj.pointcloud,obj.sol,"Solution")
           end
        end
 
