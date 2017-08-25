@@ -13,6 +13,7 @@ classdef Multigrid < handle
       INTERPOLATION = 1  % 1: Weighed based on distance
       nPreSmooth    = 10  % n: Number of pre-smoothing steps
       nPostSmooth   = 10 % n: Number of post-smoothing steps
+      nMaxIter      = 1
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,13 +36,13 @@ classdef Multigrid < handle
 
          fprintf('Initial residual: %1.3e\n', res);
          
-         % while ( res > tol_abs )
+         while ( res > tol_abs && iterations < obj.nMaxIter )
             u          = obj.cycle( 1, u, obj.solver.rhss{1});
             res        = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
             iterations = iterations + 1;
 
             fprintf('Residual after iteration %i: %1.3e\n', iterations,res);
-         % end
+         end
 
          solution = u;
          rho      = (res/res0)^(1/iterations);
