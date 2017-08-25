@@ -39,6 +39,7 @@ classdef Solver < handle
           % Solve system
           disp('Solving linear system...')
           tic
+          % obj.matrices{1} = obj.matrices{1}./diag(obj.matrices{1});
           if ( ~ obj.useMultigrid )
              obj.sol = obj.matrices{1} \ obj.rhss{1};
           else
