@@ -29,7 +29,7 @@ classdef Pointcloud < handle
                 obj.N = round(40/h^2);
                 obj.N = obj.N * ( (obj.ubx-obj.lbx) * (obj.uby-obj.lby) );
                 
-                if ( 0 )
+                if ( 1 )
                    rng(1);
                    obj.coords = zeros(obj.N,2);
                     for i=1:obj.N
