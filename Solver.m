@@ -136,10 +136,7 @@ classdef Solver < handle
                 for j=1:length(stencil{i})
                    row(ptr) = i;
                    col(ptr) = ja{i}(j);
-                   val(ptr) = -stencil{i}(j); % without -, this gave better
-                                              % results near the boundary!
-                                              % However, the unstructured case
-                                              % looks weird in the interior
+                   val(ptr) = -stencil{i}(j);
                    ptr = ptr+1;
                 end 
                 row(ptr) = i;
