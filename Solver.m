@@ -164,8 +164,8 @@ classdef Solver < handle
 
           b = [0;0;0;0;2;2]; % This determines, what operator is approximated!
 
-          lambda = -b \ (K' * W^2 * K);
-          stencil = -W^2 * K * lambda';
+          lambda = (K' * W^2 * K) \ (-b); 
+          stencil = -W^2 * K * lambda;
        end
 
        function K = setupK(obj, coords, p0)
