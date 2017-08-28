@@ -179,6 +179,7 @@ classdef Solver < handle
           GAMMA = 4;
           r = distances/h;
           W = diag(exp(-GAMMA * r.^2) - 0.0183);
+          % Just to be sure...
           for i=1:length(distances)
              if r >= 1
                 W(i,i) = 0;
