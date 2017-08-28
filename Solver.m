@@ -135,16 +135,18 @@ classdef Solver < handle
           val = zeros(nna,1);
           ptr = 1;
           for i=1:pointcloud.N
+             diag = 0.0;
              if ( pointcloud.ibound(i)==0 )
                 for j=1:length(stencil{i})
                    row(ptr) = i;
                    col(ptr) = ja{i}(j);
                    val(ptr) = -stencil{i}(j);
+                   diag = diag + abs(val(ptr));
                    ptr = ptr+1;
                 end 
                 row(ptr) = i;
                 col(ptr) = i;
-                val(ptr) = sum(stencil{i});
+                val(ptr) = diag;
                 ptr = ptr+1;
              else
                 row(ptr) = i;
