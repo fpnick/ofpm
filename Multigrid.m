@@ -60,7 +60,7 @@ classdef Multigrid < handle
       % CYCLE  Performe one cycle from level downards.
       %     u = u(level,u,f)  Perform one cycle from level downwards using the
       %                       RHS f and the initial guess u.
-         DEBUGLEVEL = 10;
+         DEBUGLEVEL = 1;
 
          if ( level == obj.solver.hierarchy.depth )
             % Coarsest level => direct solve
