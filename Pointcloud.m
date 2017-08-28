@@ -27,6 +27,7 @@ classdef Pointcloud < handle
             
             if ( nargin == 5 )
                 obj.N = round(40/h^2);
+                obj.N = obj.N * ( (obj.ubx-obj.lbx) * (obj.uby-obj.lby) );
                 
                 if ( 0 )
                    rng(1);
