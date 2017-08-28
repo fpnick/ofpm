@@ -9,7 +9,7 @@ classdef Solver < handle
        printlevel
        sol
        hierarchy
-       useMultigrid=0
+       useMultigrid=1
 
     end
 
