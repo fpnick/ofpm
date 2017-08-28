@@ -11,8 +11,8 @@ classdef Multigrid < handle
       SMOOTHER      = 1  % 1: Gauss-Seidel
       RESTRICTION   = 1  % 1: Inclusion
       INTERPOLATION = 1  % 1: Weighed based on distance
-      nPreSmooth    = 10  % n: Number of pre-smoothing steps
-      nPostSmooth   = 10 % n: Number of post-smoothing steps
+      nPreSmooth    = 2  % n: Number of pre-smoothing steps
+      nPostSmooth   = 2 % n: Number of post-smoothing steps
       nMaxIter      = 1
     end
 
