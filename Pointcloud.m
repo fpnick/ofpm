@@ -28,7 +28,7 @@ classdef Pointcloud < handle
             if ( nargin == 5 )
                 obj.N = round(40/h^2);
                 
-                if ( 1 )
+                if ( 0 )
                    rng(1);
                    obj.coords = zeros(obj.N,2);
                     for i=1:obj.N
