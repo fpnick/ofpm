@@ -118,6 +118,9 @@ classdef Solver < handle
              if ( pointcloud.ibound(i)==0 ) 
                 stencil{i} = obj.setupStencil(pointcloud,i);
                 n = max(size(pointcloud.neighbourLists{i}));
+                if ( n<20 )
+                   fprintf('Point %i has less than 20 neighbours', i);
+                end
                 ja{i} = pointcloud.neighbourLists{i}(2:n);
              end
           end
