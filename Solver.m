@@ -120,10 +120,10 @@ classdef Solver < handle
                 if ( n<20 )
                    fprintf('Point %i has less than 20 neighbours', i);
                 end
-                ja{i} = pointcloud.neighbourLists{i}(2:n);
+                ja{i} = pointcloud.neighbourLists{i}(1:n);
              end
           end
-          nna=pointcloud.N;
+          nna=0;
           for i=1:pointcloud.N
              if ( pointcloud.ibound_location(i)==0 ) 
                 nna = nna + length(ja{i});
@@ -140,13 +140,9 @@ classdef Solver < handle
                    row(ptr) = i;
                    col(ptr) = ja{i}(j);
                    val(ptr) = -stencil{i}(j);
-                   diag = diag + abs(val(ptr));
+                   diag = diag + val(ptr);
                    ptr = ptr+1;
                 end 
-                row(ptr) = i;
-                col(ptr) = i;
-                val(ptr) = diag;
-                ptr = ptr+1;
              else
                 row(ptr) = i;
                 col(ptr) = i;
@@ -163,8 +159,8 @@ classdef Solver < handle
        function stencil = setupStencil(obj,pointcloud,i)
           n = max(size(pointcloud.neighbourLists{i}));
 
-          K = obj.setupK( pointcloud.coords(pointcloud.neighbourLists{i}(2:n),:), pointcloud.coords(i,:));
-          W = obj.setupWeightMatrix( pointcloud.distanceLists{i}(2:n), pointcloud.h);
+          K = obj.setupK( pointcloud.coords(pointcloud.neighbourLists{i}(1:n),:), pointcloud.coords(i,:));
+          W = obj.setupWeightMatrix( pointcloud.distanceLists{i}(1:n), pointcloud.h);
 
           b = [0;0;0;0;2;2]; % This determines, what operator is approximated!
 
