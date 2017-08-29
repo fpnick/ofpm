@@ -25,7 +25,7 @@ parfor i=1:length(x)
     eigmax_norm(i) = eigs(A_norm,1);
     diagdom(i) = measureDiagDom(A_norm);
     
-    A_scaledBoundary = scaleBoundary(A,pointcloud.ibound);
+    A_scaledBoundary = scaleBoundary(A,pointcloud.ibound_location);
     condition_scaledBoundary(i) = condest(A_scaledBoundary);
     eigmin_scaledBoundary(i) = eigs(A_scaledBoundary,1,'sm');
     eigmax_scaledBoundary(i) = eigs(A_scaledBoundary,1);

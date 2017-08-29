@@ -11,7 +11,7 @@ function [ B ] = scaleBoundary( A, ibound )
         if ( ibound(i) == 0 )
             innerAvg=innerAvg+A(i,i);
             inner = inner + 1;
-        elseif ( ibound(i) == 1)
+        elseif ( ibound(i) ~= 1)
             bndAvg=bndAvg+A(i,i);
             bndDirichlet = bndDirichlet + 1;
         end
