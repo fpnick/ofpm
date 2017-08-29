@@ -13,7 +13,7 @@ classdef Multigrid < handle
       INTERPOLATION = 1  % 1: Weighed based on distance
       nPreSmooth    = 2  % n: Number of pre-smoothing steps
       nPostSmooth   = 2 % n: Number of post-smoothing steps
-      nMaxIter      = 1
+      nMaxIter      = 99
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,7 +97,7 @@ classdef Multigrid < handle
          end
       end
 
-      function u = smooth (obj,A, u, f, iter)
+      function u = smooth (obj, A, u, f, iter)
       % SMOOTH  Smoother
       %     u = smooth(A,u,f,iter)  Apply iter iterations of smoother   
       %                             on Au=f. The smoother type is choosen by
