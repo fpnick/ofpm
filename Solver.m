@@ -42,8 +42,6 @@ classdef Solver < handle
           % obj.matrices{1} = obj.matrices{1}./diag(obj.matrices{1});
           if ( ~ obj.useMultigrid )
              obj.sol = obj.matrices{1} \ obj.rhss{1};
-             % This is cheating...
-             % obj.sol = obj.sol / max(obj.sol);
           else
              mg = Multigrid(obj);
              obj.sol = mg.solve(zeros(obj.pointcloud.N,1),10^(-8));
