@@ -33,7 +33,7 @@ classdef Pointcloud < handle
                 obj.N = obj.N * ( (obj.ubx-obj.lbx) * (obj.uby-obj.lby) );
                 
                 if ( 1 )
-                   rng(1);
+                   rng(2);
                    obj.coords = zeros(obj.N,2);
                     for i=1:obj.N
                         obj.coords(i,1) = unifrnd(obj.lbx,obj.ubx);
