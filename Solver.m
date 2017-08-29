@@ -10,7 +10,6 @@ classdef Solver < handle
        sol
        hierarchy
        useMultigrid=1
-
     end
 
     methods
@@ -118,7 +117,7 @@ classdef Solver < handle
                 stencil{i} = obj.setupStencil(pointcloud,i);
                 n = max(size(pointcloud.neighbourLists{i}));
                 if ( n<20 )
-                   fprintf('Point %i has less than 20 neighbours', i);
+                   fprintf('Point %i has less than 20 neighbours\n', i);
                 end
                 ja{i} = pointcloud.neighbourLists{i}(1:n);
              end
