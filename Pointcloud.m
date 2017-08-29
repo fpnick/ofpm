@@ -12,12 +12,15 @@ classdef Pointcloud < handle
         uby
         neighbourLists
         distanceLists
-        ibound
+        ibound_type     % 0 = interior point
+                        % 1 = Dirichtel boundary
+                        % 2 = Neumann boundary
+        ibound_location % 0 = interior point
         COARSENING = 1
     end
     
     methods
-        function obj = Pointcloud(h,lbx,lby,ubx,uby,coords,ibound)
+        function obj = Pointcloud(h,lbx,lby,ubx,uby,coords,ibound_type,ibound_location)
             
             obj.h = h;
             obj.lbx = lbx;
@@ -51,6 +54,7 @@ classdef Pointcloud < handle
                 
                 NInterior = obj.N;
                 
+                % Insert boundary points
                 hBnd = 1/sqrt(obj.N);
                 hBnd = 1/(2*sqrt(obj.N));
                 x_bottom = obj.lbx:hBnd:obj.ubx;
@@ -66,12 +70,16 @@ classdef Pointcloud < handle
                 bc = [ x_bottom' y_bottom'; x_top' y_top'; x_right' y_right'; x_left' y_left' ];
                 obj.coords = [ obj.coords; bc ];
                 
-                obj.ibound = zeros(obj.N,1);
-                obj.ibound(NInterior+1:obj.N) = 1;
-            elseif ( nargin == 7 )
+                obj.ibound_type = zeros(obj.N,1);
+                obj.ibound_location = zeros(obj.N,1);
+                % TODO
+                obj.ibound_type(NInterior+1:obj.N) = 1;
+                obj.ibound_location(NInterior+1:obj.N) = 1;
+            elseif ( nargin == 8 )
                  obj.N = length(coords);
                  obj.coords = coords;
-                 obj.ibound = ibound;
+                 obj.ibound_type = ibound_type;
+                 obj.ibound_location = ibound_location;
             end
         end
 
@@ -82,7 +90,7 @@ classdef Pointcloud < handle
         function organize(obj)
             is_active = ones(obj.N,1);
             for i = 1:obj.N
-                if is_active(i) && obj.ibound(i)==0
+                if is_active(i) && obj.ibound_type(i)==0
                     for j = 1:length(obj.neighbourLists{i})
                         if i ~= obj.neighbourLists{i}(j) && is_active(obj.neighbourLists{i}(j))
                             if  obj.distanceLists{i}(j) < obj.h*0.1 
@@ -96,17 +104,26 @@ classdef Pointcloud < handle
             obj.N = sum(is_active);
             obj.coords = [obj.coords(find(is_active),1),obj.coords(find(is_active),2)];
             obj.findNeighbours;
-            obj.ibound=zeros(obj.N,1);
+            obj.ibound_type=zeros(obj.N,1);
+            obj.ibound_location=zeros(obj.N,1);
             for i=1:obj.N
-               if ( obj.isBoundary(obj.coords(i,:)) )
-                   obj.ibound(i) = 1;
-               end
+               [ obj.ibound_location(i), obj.ibound_type(i) ] = obj.isBoundary(obj.coords(i,:));
            end
         end
 
-        function bol = isBoundary(obj,point)
-           % ISBOUNDARY return 1 iff the given point is on a boundary
-           bol = (point(1) == obj.lbx || point(2) == obj.lby ||point(1) == obj.ubx || point(2) == obj.uby);
+        % TODO: Extend: Two return values: WHICH boundary and WHICH TYPE
+        function [ location, type ] = isBoundary(obj,point)
+            % ISBOUNDARY   Determines, to which boundary a point belongs and
+            %              what type of boundary it is.
+            %     [ location, type ] = isBoundary(obj,point)
+           outer_box = (point(1) == obj.lbx || point(2) == obj.lby ||point(1) == obj.ubx || point(2) == obj.uby);
+           if ( outer_box ) 
+              location = 1;
+              type = 1;
+           else
+              location = 0;
+              type = 0;
+           end
         end
 
         function plot(obj)
@@ -163,7 +180,7 @@ classdef Pointcloud < handle
                end             
                
                % h->H isn't really correct here
-               coarsePointcloud = Pointcloud(sqrt((nC+nF)/nC)*obj.h,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound(find(level==2)));
+               coarsePointcloud = Pointcloud(sqrt((nC+nF)/nC)*obj.h,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound_type(find(level==2)),obj.ibound_location(find(level==2)));
 
             end
             
@@ -171,4 +188,5 @@ classdef Pointcloud < handle
     end % METHODS
     
 end % CLASS
+
 

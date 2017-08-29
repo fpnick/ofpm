@@ -74,7 +74,8 @@ classdef Solver < handle
           disp(sprintf('Setting up rhs for level %d',level))
           rhs = zeros(pointcloud.N,1);
           for i=1:pointcloud.N
-              if ( ~pointcloud.ibound(i) )
+              if ( pointcloud.ibound_location(i)==0 )
+                 % point is not on the boundary
                   rhs(i) = obj.loadFunction(pointcloud.coords(i,:));
               else
                   rhs(i) = obj.bcFunction(pointcloud.coords(i,:));
@@ -113,7 +114,7 @@ classdef Solver < handle
           %obj.matrix = sparse(pointcloud.N,pointcloud.N);
 
           parfor i=1:pointcloud.N
-             if ( pointcloud.ibound(i)==0 ) 
+             if ( pointcloud.ibound_location(i)==0 ) 
                 stencil{i} = obj.setupStencil(pointcloud,i);
                 n = max(size(pointcloud.neighbourLists{i}));
                 if ( n<20 )
@@ -124,7 +125,7 @@ classdef Solver < handle
           end
           nna=pointcloud.N;
           for i=1:pointcloud.N
-             if ( pointcloud.ibound(i)==0 ) 
+             if ( pointcloud.ibound_location(i)==0 ) 
                 nna = nna + length(ja{i});
              end
           end
@@ -134,7 +135,7 @@ classdef Solver < handle
           ptr = 1;
           for i=1:pointcloud.N
              diag = 0.0;
-             if ( pointcloud.ibound(i)==0 )
+             if ( pointcloud.ibound_location(i)==0 )
                 for j=1:length(stencil{i})
                    row(ptr) = i;
                    col(ptr) = ja{i}(j);
