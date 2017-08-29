@@ -7,11 +7,13 @@ size = zeros(length(x),1);
 eigmax = zeros(length(x),1);
 eigmin = zeros(length(x),1);
 diagdom = zeros(length(x),1);
+solmax = zeros(length(x),1);
 
 
-parfor i=1:length(x)
+for i=1:length(x)
     x(i)
     [A,rhs,sol,pointcloud]=ofpm_oo(x(i),0,0,1,1,0);
+    solmax(i) = max(sol);
     
     condition(i) = condest(A);
     size(i) = length(A);
