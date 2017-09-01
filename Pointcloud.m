@@ -17,7 +17,7 @@ classdef Pointcloud < handle
                         % 2 = Neumann boundary
         ibound_location % 0 = interior point
         COARSENING = 1
-        HFACTOR = 0.4
+        HFACTOR_COARSENING = 0.4
     end
     
     methods
@@ -171,7 +171,8 @@ classdef Pointcloud < handle
                        coarse2fine(nC) = i;
                        fine2coarse(i) = nC;
                        for j=2:length(obj.neighbourLists{i})
-                           if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR )
+                           if ( level(obj.neighbourLists{i}(j)) == 0 &&
+                              obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING )
                                level(obj.neighbourLists{i}(j)) = 1;
                                nF = nF +1;
                            end
