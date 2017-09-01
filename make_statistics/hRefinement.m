@@ -1,7 +1,7 @@
 
 addpath('..')
 
-x=0.04:0.01:0.1; 
+x=0.01:0.01:0.1; 
 condition = zeros(length(x),1);
 size = zeros(length(x),1);
 eigmax = zeros(length(x),1);
@@ -42,12 +42,12 @@ figure;
 plot(size,condition,'o',size,condition_norm,'s');
 title("Condition Numbers");
 % legend("Unscaled","Normalized","Scaled Boundary");
-legend("Unscaled","Normalized");
+legend("Original","Normalized");
 legend('Location','northwest');
 xlabel("Matrix Size");
 figure;
 semilogy(size,eigmin,'v',size,eigmax,'^');
-title("Eigenvalues of Unscaled Systems (absolute values)");
+title("Eigenvalues of Original Systems (absolute values)");
 legend("Min","Max");
 legend('Location','southwest');
 xlabel("Matrix Size");
@@ -69,5 +69,5 @@ xlabel("Matrix Size");
 % xlabel("Matrix Size");
 figure;
 plot(size,rho,'x');
-title("Convergence rates of unscaled system");
+title("Convergence rates of Original system");
 xlabel("Matrix Size");

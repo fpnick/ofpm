@@ -11,9 +11,10 @@ classdef Multigrid < handle
       SMOOTHER      = 1  % 1: Gauss-Seidel
       RESTRICTION   = 1  % 1: Inclusion
       INTERPOLATION = 1  % 1: Weighed based on distance
+      NORMALIZE     = 1
       nPreSmooth    = 2  % n: Number of pre-smoothing steps
       nPostSmooth   = 2 % n: Number of post-smoothing steps
-      nMaxIter      = 100
+      nMaxIter      = 30
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -33,6 +34,12 @@ classdef Multigrid < handle
          res0       = res;
          tol_abs    = res * tol;
          iterations = 0;
+
+         if ( obj.NORMALIZE ) 
+            for i=1:obj.solver.hierarchy.depth
+               obj.solver.matrices{i} = obj.solver.matrices{i}./diag(obj.solver.matrices{i});
+            end
+         end
 
          fprintf('Initial residual: %1.3e\n', res);
          
