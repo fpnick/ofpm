@@ -8,11 +8,12 @@ eigmax = zeros(length(x),1);
 eigmin = zeros(length(x),1);
 diagdom = zeros(length(x),1);
 solmax = zeros(length(x),1);
+rho = zeros(length(x),1);
 
 
 for i=1:length(x)
     x(i)
-    [A,rhs,sol,pointcloud]=ofpm_oo(x(i),0,0,1,1,0);
+    [A,rhs,sol,pointcloud,rho(i)]=ofpm_oo(x(i),0,0,1,1,0);
     solmax(i) = max(sol);
     
     condition(i) = condest(A);
@@ -66,3 +67,7 @@ xlabel("Matrix Size");
 % legend("Min","Max");
 % legend('Location','southwest');
 % xlabel("Matrix Size");
+figure;
+plot(size,rho,'x');
+title("Convergence rates of unscaled system");
+xlabel("Matrix Size");

@@ -27,7 +27,7 @@ classdef Solver < handle
 
        end
 
-       function advance(obj)
+       function rho = advance(obj)
 
            
           for i=1:obj.hierarchy.depth
@@ -43,7 +43,7 @@ classdef Solver < handle
              obj.sol = obj.matrices{1} \ obj.rhss{1};
           else
              mg = Multigrid(obj);
-             obj.sol = mg.solve(rand(obj.pointcloud.N,1),10^(-8));
+             [obj.sol,rho] = mg.solve(rand(obj.pointcloud.N,1),10^(-8));
           end
           toc
 

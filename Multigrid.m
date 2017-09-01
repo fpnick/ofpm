@@ -13,7 +13,7 @@ classdef Multigrid < handle
       INTERPOLATION = 1  % 1: Weighed based on distance
       nPreSmooth    = 2  % n: Number of pre-smoothing steps
       nPostSmooth   = 2 % n: Number of post-smoothing steps
-      nMaxIter      = 99
+      nMaxIter      = 100
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -24,7 +24,7 @@ classdef Multigrid < handle
          obj.solver = solver;
       end
 
-      function solution = solve(obj,u,tol)
+      function [solution,rho] = solve(obj,u,tol)
       % SOLVE  Solve the linear system given by the hierachy in 'solver'
       %     solution = solve(u,tol) solves with a residual reduction of tol
       %                             starting with initial guess u.
