@@ -18,6 +18,7 @@ classdef Pointcloud < handle
         ibound_location % 0 = interior point
         COARSENING = 1
         HFACTOR_COARSENING = 0.4
+        HFACTOR_ORGANIZATION = 0.2
     end
     
     methods
@@ -94,7 +95,7 @@ classdef Pointcloud < handle
                 if is_active(i) && obj.ibound_type(i)==0
                     for j = 1:length(obj.neighbourLists{i})
                         if i ~= obj.neighbourLists{i}(j) && is_active(obj.neighbourLists{i}(j))
-                            if  obj.distanceLists{i}(j) < obj.h*0.2
+                            if  obj.distanceLists{i}(j) < obj.h*obj.HFACTOR_ORGANIZATION
                                 is_active(i) = 0;
                                 break;
                             end
@@ -171,8 +172,7 @@ classdef Pointcloud < handle
                        coarse2fine(nC) = i;
                        fine2coarse(i) = nC;
                        for j=2:length(obj.neighbourLists{i})
-                           if ( level(obj.neighbourLists{i}(j)) == 0 &&
-                              obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING )
+                           if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING )
                                level(obj.neighbourLists{i}(j)) = 1;
                                nF = nF +1;
                            end
