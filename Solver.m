@@ -125,7 +125,7 @@ classdef Solver < handle
           %obj.matrix = sparse(pointcloud.N,pointcloud.N);
 
           parfor i=1:pointcloud.N
-             if ( pointcloud.ibound_location(i)==0 ) 
+             if ( pointcloud.ibound_type(i)==0 ) 
                 stencil{i} = obj.setupStencil(pointcloud,i);
                 n = max(size(pointcloud.neighbourLists{i}));
                 if ( n<20 )
@@ -136,7 +136,7 @@ classdef Solver < handle
           end
           nna=0;
           for i=1:pointcloud.N
-             if ( pointcloud.ibound_location(i)==0 ) 
+             if ( pointcloud.ibound_type(i)==0 ) 
                 nna = nna + length(ja{i});
              end
           end
@@ -146,7 +146,7 @@ classdef Solver < handle
           ptr = 1;
           for i=1:pointcloud.N
              diag = 0.0;
-             if ( pointcloud.ibound_location(i)==0 )
+             if ( pointcloud.ibound_type(i)==0 )
                 for j=1:length(stencil{i})
                    row(ptr) = i;
                    col(ptr) = ja{i}(j);
