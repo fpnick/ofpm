@@ -80,7 +80,7 @@ classdef Solver < handle
               elseif ( pointcloud.ibound_type(i)==1 ) 
                   rhs(i) = obj.bcFunctionDirichlet(pointcloud.coords(i,:));
               elseif ( pointcloud.ibound_type(i)==2 )
-                  rhs(i) = obj.bcFunctionNeumann(pointcloud.coords(i,:));
+                  rhs(i) = obj.bcFunctionNeumann(pointcloud.coords(i,:),pointcloud.ibound_location(i));
               end
           end
           obj.rhss{level} = rhs;
@@ -110,23 +110,54 @@ classdef Solver < handle
           % f = sin(2*pi*x) * sin(2*pi*y);
        end
 
-       function [ f ] = bcFunctionNeumann(obj,point)
+       function [ f ] = bcFunctionNeumann(obj,point,location)
        %BCFUNCTIONNEUMANN Summary of this function goes here
        %   Detailed explanation goes here
           x=point(1,1);
           y=point(1,2);
 
-          f = 10;
+          if ( location == 4 ) 
+             f = -2*pi * sin( 2*pi * y);
+          elseif ( location == 3 ) 
+             f = 2*pi * sin( 2*pi * y);
+          elseif (location == 1)
+             f = -2*pi * sin( 2*pi * x);
+          elseif (location == 2)
+             f = 2*pi * sin( 2*pi * x);
+          else
+             disp('Error in bcFunctionNeumann')
+          end
+
        end
 
        function setupMatrix(obj,pointcloud,level)
           disp(sprintf('Setting up matrix for level %d',level))
           tic
           %obj.matrix = sparse(pointcloud.N,pointcloud.N);
+          b = 0;
 
-          parfor i=1:pointcloud.N
+          for i=1:pointcloud.N
              if ( pointcloud.ibound_type(i)==0 ) 
-                stencil{i} = obj.setupStencil(pointcloud,i);
+                b = [0;0;0;0;2;2]; 
+                stencil{i} = obj.setupStencil(pointcloud,i,b);
+                n = max(size(pointcloud.neighbourLists{i}));
+                if ( n<20 )
+                   % fprintf('Point %i has less than 20 neighbours\n', i);
+                end
+                ja{i} = pointcloud.neighbourLists{i}(1:n);
+             elseif ( pointcloud.ibound_type(i)==2 )
+                if ( pointcloud.ibound_location(i)==4 )
+                   b = [-1;0;0;0;0;0]; 
+                elseif ( pointcloud.ibound_location(i)==3 )
+                   b = [1;0;0;0;0;0]; 
+                elseif ( pointcloud.ibound_location(i)==2 )
+                   b = [0;1;0;0;0;0]; 
+                elseif ( pointcloud.ibound_location(i)==1 )
+                   b = [0;-1;0;0;0;0]; 
+                else
+                   disp('Error in setupMatrix')
+                end
+                stencil{i} = obj.setupStencil(pointcloud,i,b);
                 n = max(size(pointcloud.neighbourLists{i}));
                 if ( n<20 )
                    % fprintf('Point %i has less than 20 neighbours\n', i);
@@ -146,7 +177,7 @@ classdef Solver < handle
           ptr = 1;
           for i=1:pointcloud.N
              diag = 0.0;
-             if ( pointcloud.ibound_type(i)==0 )
+             if ( pointcloud.ibound_type(i)~=1 )
                 for j=1:length(stencil{i})
                    row(ptr) = i;
                    col(ptr) = ja{i}(j);
@@ -154,7 +185,7 @@ classdef Solver < handle
                    diag = diag + val(ptr);
                    ptr = ptr+1;
                 end 
-             else
+             else % Dirichlet BCs
                 row(ptr) = i;
                 col(ptr) = i;
                 val(ptr) = 1.0;
@@ -167,13 +198,11 @@ classdef Solver < handle
 
        end
 
-       function stencil = setupStencil(obj,pointcloud,i)
+       function stencil = setupStencil(obj,pointcloud,i,b)
           n = max(size(pointcloud.neighbourLists{i}));
 
           K = obj.setupK( pointcloud.coords(pointcloud.neighbourLists{i}(1:n),:), pointcloud.coords(i,:));
           W = obj.setupWeightMatrix( pointcloud.distanceLists{i}(1:n), pointcloud.h);
-
-          b = [0;0;0;0;2;2]; % This determines, what operator is approximated!
 
           lambda = (K' * W^2 * K) \ (-b); 
           stencil = -W^2 * K * lambda;

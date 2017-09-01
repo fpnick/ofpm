@@ -128,10 +128,10 @@ classdef Pointcloud < handle
                  type = 2;
               elseif ( y == obj.lby )
                  location = 1;
-                 type = 1;
+                 type = 2;
               elseif ( y == obj.uby )
                  location = 2;
-                 type = 1;
+                 type = 2;
               end
            else
               location = 0;
