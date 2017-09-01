@@ -41,6 +41,7 @@ classdef Solver < handle
           % obj.matrices{1} = obj.matrices{1}./diag(obj.matrices{1});
           if ( ~ obj.useMultigrid )
              obj.sol = obj.matrices{1} \ obj.rhss{1};
+             rho = -1;
           else
              mg = Multigrid(obj);
              [obj.sol,rho] = mg.solve(rand(obj.pointcloud.N,1),10^(-8));
