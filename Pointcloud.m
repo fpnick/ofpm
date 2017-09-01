@@ -4,6 +4,7 @@ classdef Pointcloud < handle
     
     properties
         N
+        NInterior
         h
         coords
         lbx
@@ -54,7 +55,7 @@ classdef Pointcloud < handle
                     obj.N = length(obj.coords);
                 end
                 
-                NInterior = obj.N;
+                obj.NInterior = obj.N;
                 
                 % Insert boundary points
                 hBnd = 1/sqrt(obj.N);
@@ -71,12 +72,12 @@ classdef Pointcloud < handle
                 obj.N = obj.N + length(x_bottom) + length(x_top) + length(x_right) + length(x_left);
                 bc = [ x_bottom' y_bottom'; x_top' y_top'; x_right' y_right'; x_left' y_left' ];
                 obj.coords = [ obj.coords; bc ];
-                
+
                 obj.ibound_type = zeros(obj.N,1);
                 obj.ibound_location = zeros(obj.N,1);
-                % TODO
-                obj.ibound_type(NInterior+1:obj.N) = 1;
-                obj.ibound_location(NInterior+1:obj.N) = 1;
+                for i=1:obj.N
+                   [ obj.ibound_location(i), obj.ibound_type(i) ] = obj.isBoundary(obj.coords(i,:));
+                end
             elseif ( nargin == 8 )
                  obj.N = length(coords);
                  obj.coords = coords;
@@ -110,7 +111,7 @@ classdef Pointcloud < handle
             obj.ibound_location=zeros(obj.N,1);
             for i=1:obj.N
                [ obj.ibound_location(i), obj.ibound_type(i) ] = obj.isBoundary(obj.coords(i,:));
-           end
+            end
         end
 
         % TODO: Extend: Two return values: WHICH boundary and WHICH TYPE
@@ -118,10 +119,23 @@ classdef Pointcloud < handle
             % ISBOUNDARY   Determines, to which boundary a point belongs and
             %              what type of boundary it is.
             %     [ location, type ] = isBoundary(obj,point)
-           outer_box = (point(1) == obj.lbx || point(2) == obj.lby ||point(1) == obj.ubx || point(2) == obj.uby);
+            x = point(1);
+            y = point(2);
+           outer_box = (x == obj.lbx || y == obj.lby || x == obj.ubx ||  y == obj.uby);
            if ( outer_box ) 
-              location = 1;
-              type = 1;
+              if ( x == obj.lbx ) 
+                 location = 4;
+                 type = 2;
+              elseif ( x == obj.ubx )
+                 location = 3;
+                 type = 2;
+              elseif ( y == obj.lby )
+                 location = 1;
+                 type = 1;
+              elseif ( y == obj.uby )
+                 location = 2;
+                 type = 1;
+              end
            else
               location = 0;
               type = 0;
@@ -130,7 +144,10 @@ classdef Pointcloud < handle
 
         function plot(obj)
             figure;
+            hold on
             plot(obj.coords(:,1),obj.coords(:,2),'.');
+            plot(obj.coords(obj.ibound_type==2,1),obj.coords(obj.ibound_type==2,2),'rx');
+            hold off
         end
 
         function drawStar(obj,index)
