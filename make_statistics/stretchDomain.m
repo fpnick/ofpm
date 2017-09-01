@@ -13,7 +13,7 @@ diagdom = zeros(length(X),1);
 
 parfor i=1:length(X)
     X(i)
-    [A,rhs,sol,pointcloud]=ofpm_oo(H,0,0,X(i),1,0);
+    [A,rhs,sol,pointcloud,rho]=ofpm_oo(H,0,0,X(i),1,0);
     condition(i) = condest(A);
     size(i) = length(A);
     eigmin(i) = eigs(A,1,'sm');
@@ -63,3 +63,7 @@ title(sprintf('Eigenvalues of System with Scaled Boundaries (absolute values); H
 legend('Min','Max');
 legend('Location','southwest');
 xlabel('Matrix Size');
+figure;
+plot(size,rho,'x');
+title("Convergence rates of unscaled system");
+xlabel("Matrix Size");
