@@ -9,7 +9,7 @@ classdef Solver < handle
        printlevel
        sol
        hierarchy
-       useMultigrid=1
+       useMultigrid=0
     end
 
     methods
@@ -74,11 +74,13 @@ classdef Solver < handle
           disp(sprintf('Setting up rhs for level %d',level))
           rhs = zeros(pointcloud.N,1);
           for i=1:pointcloud.N
-              if ( pointcloud.ibound_location(i)==0 )
+              if ( pointcloud.ibound_type(i)==0 )
                  % point is not on the boundary
                   rhs(i) = obj.loadFunction(pointcloud.coords(i,:));
-              else
-                  rhs(i) = obj.bcFunction(pointcloud.coords(i,:));
+              elseif ( pointcloud.ibound_type(i)==1 ) 
+                  rhs(i) = obj.bcFunctionDirichlet(pointcloud.coords(i,:));
+              elseif ( pointcloud.ibound_type(i)==2 )
+                  rhs(i) = obj.bcFunctionNeumann(pointcloud.coords(i,:));
               end
           end
           obj.rhss{level} = rhs;
@@ -96,8 +98,8 @@ classdef Solver < handle
           %f = sin(2*pi*x) * sin(2*pi*y);
        end
 
-       function [ f ] = bcFunction(obj,point)
-       %BCFUNCTION Summary of this function goes here
+       function [ f ] = bcFunctionDirichlet(obj,point)
+       %BCFUNCTIONDIRICHLET Summary of this function goes here
        %   Detailed explanation goes here
           x=point(1,1);
           y=point(1,2);
@@ -106,6 +108,15 @@ classdef Solver < handle
           f = 0;
           %f = sin(x) * sin(y);
           % f = sin(2*pi*x) * sin(2*pi*y);
+       end
+
+       function [ f ] = bcFunctionNeumann(obj,point)
+       %BCFUNCTIONNEUMANN Summary of this function goes here
+       %   Detailed explanation goes here
+          x=point(1,1);
+          y=point(1,2);
+
+          f = 10;
        end
 
        function setupMatrix(obj,pointcloud,level)
@@ -118,7 +129,7 @@ classdef Solver < handle
                 stencil{i} = obj.setupStencil(pointcloud,i);
                 n = max(size(pointcloud.neighbourLists{i}));
                 if ( n<20 )
-                   fprintf('Point %i has less than 20 neighbours\n', i);
+                   % fprintf('Point %i has less than 20 neighbours\n', i);
                 end
                 ja{i} = pointcloud.neighbourLists{i}(1:n);
              end
