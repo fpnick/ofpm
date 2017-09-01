@@ -11,7 +11,8 @@ classdef Multigrid < handle
       SMOOTHER      = 1  % 1: Gauss-Seidel
       RESTRICTION   = 1  % 1: Inclusion
       INTERPOLATION = 1  % 1: Weighed based on distance
-      NORMALIZE     = 1
+      NORMALIZE     = 1  % 1: Normalize matrices on every level
+      ENFORCE_DIAGDOM = 1 % 1: Add 5% to every diagonal
       nPreSmooth    = 2  % n: Number of pre-smoothing steps
       nPostSmooth   = 2 % n: Number of post-smoothing steps
       nMaxIter      = 30
@@ -38,6 +39,11 @@ classdef Multigrid < handle
          if ( obj.NORMALIZE ) 
             for i=1:obj.solver.hierarchy.depth
                obj.solver.matrices{i} = obj.solver.matrices{i}./diag(obj.solver.matrices{i});
+            end
+         end
+         if ( obj.ENFORCE_DIAGDOM == 1 ) 
+            for i=1:obj.solver.hierarchy.depth
+               obj.solver.matrices{i} = obj.solver.matrices{i}+0.05*diag(diag(obj.solver.matrices{i}));
             end
          end
 
