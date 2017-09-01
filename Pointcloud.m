@@ -4,7 +4,6 @@ classdef Pointcloud < handle
     
     properties
         N
-        NInterior
         h
         coords
         lbx
@@ -54,8 +53,6 @@ classdef Pointcloud < handle
                     end
                     obj.N = length(obj.coords);
                 end
-                
-                obj.NInterior = obj.N;
                 
                 % Insert boundary points
                 hBnd = 1/sqrt(obj.N);
