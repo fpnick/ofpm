@@ -122,16 +122,16 @@ classdef Pointcloud < handle
            if ( outer_box ) 
               if ( x == obj.lbx ) 
                  location = 4;
-                 type = 2;
+                 type = 1;
               elseif ( x == obj.ubx )
                  location = 3;
-                 type = 2;
+                 type = 1;
               elseif ( y == obj.lby )
                  location = 1;
-                 type = 2;
+                 type = 1;
               elseif ( y == obj.uby )
                  location = 2;
-                 type = 2;
+                 type = 1;
               end
            else
               location = 0;
