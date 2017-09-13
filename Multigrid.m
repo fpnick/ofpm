@@ -30,6 +30,7 @@ classdef Multigrid < handle
       % SOLVE  Solve the linear system given by the hierachy in 'solver'
       %     solution = solve(u,tol) solves with a residual reduction of tol
       %                             starting with initial guess u.
+         DEBUGLEVEL = 11;
 
          res        = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
          res0       = res;
@@ -51,8 +52,15 @@ classdef Multigrid < handle
          
          while ( res > tol_abs && iterations < obj.nMaxIter )
             u          = obj.cycle( 1, u, obj.solver.rhss{1});
-            res        = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
+            resVec     = obj.solver.matrices{1}*u-obj.solver.rhss{1};
+            res        = norm( resVec, 2);
             iterations = iterations + 1;
+
+            if DEBUGLEVEL>=10
+               condition = condest(obj.solver.matrices{1});
+               fprintf('Condition is %1.3e\n', condition);
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},resVec,sprintf('Residual on level 1'));
+            end
 
             fprintf('Residual after iteration %i: %1.3e\n', iterations,res);
          end
