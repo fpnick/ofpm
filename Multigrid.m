@@ -9,13 +9,13 @@ classdef Multigrid < handle
 
       % Parameters
       SMOOTHER      = 1  % 1: Gauss-Seidel
-      RESTRICTION   = 1  % 1: Inclusion
+      RESTRICTION   = 1  % 1: Injection
       INTERPOLATION = 1  % 1: Weighed based on distance
       NORMALIZE     = 0  % 1: Normalize matrices on every level
       ENFORCE_DIAGDOM = 0 % 1: Add 5% to every diagonal
       nPreSmooth    = 2  % n: Number of pre-smoothing steps
       nPostSmooth   = 2 % n: Number of post-smoothing steps
-      nMaxIter      = 30
+      nMaxIter      = 1
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
