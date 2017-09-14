@@ -32,7 +32,13 @@ classdef Multigrid < handle
       %                             starting with initial guess u.
          DEBUGLEVEL = 11;
 
-         res        = norm( obj.solver.matrices{1}*u-obj.solver.rhss{1}, 2);
+         resVec     = obj.solver.matrices{1}*u-obj.solver.rhss{1};
+         res        = norm( resVec, 2);
+         if DEBUGLEVEL>=10
+            condition = condest(obj.solver.matrices{1});
+            fprintf('Condition is %1.3e\n', condition);
+            obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},resVec,sprintf('Initial Residual'));
+         end
          res0       = res;
          tol_abs    = res * tol;
          iterations = 0;
@@ -57,9 +63,7 @@ classdef Multigrid < handle
             iterations = iterations + 1;
 
             if DEBUGLEVEL>=10
-               condition = condest(obj.solver.matrices{1});
-               fprintf('Condition is %1.3e\n', condition);
-               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},resVec,sprintf('Residual on level 1'));
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},resVec,sprintf('Residual after iteration %i', iterations));
             end
 
             fprintf('Residual after iteration %i: %1.3e\n', iterations,res);
@@ -81,11 +85,17 @@ classdef Multigrid < handle
       % CYCLE  Performe one cycle from level downards.
       %     u = u(level,u,f)  Perform one cycle from level downwards using the
       %                       RHS f and the initial guess u.
-         DEBUGLEVEL = 1;
+         DEBUGLEVEL = 11;
 
          if ( level == obj.solver.hierarchy.depth )
             % Coarsest level => direct solve
             u = obj.solver.matrices{level} \ f;
+            if DEBUGLEVEL>=9
+               condition = condest(obj.solver.matrices{level});
+               fprintf('Condition is %1.3e on CG \n', condition);
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},u,sprintf('CG solution'));
+               obj.solver.hierarchy.pointclouds{3}.plot();
+            end
          else
             if DEBUGLEVEL>=10
                solution = obj.solver.matrices{level} \ f;
@@ -98,7 +108,15 @@ classdef Multigrid < handle
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Presmoothed Error on level %i', level));
             end
             resVec         = obj.solver.matrices{level}*u-f;
+            if DEBUGLEVEL>=10
+               condition = condest(obj.solver.matrices{level});
+               fprintf('Condition is %1.3e on level %i \n', condition, level);
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},resVec,sprintf('Residual on level %i', level));
+            end
             resVecCoarse   = obj.restrict( resVec, level);
+            if DEBUGLEVEL>=10
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level+1},resVecCoarse,sprintf('Restricted Residual on level %i', level+1));
+            end
             correction     = zeros(length(resVecCoarse),1);
             correction     = obj.cycle( level+1, correction, resVecCoarse);
             correctionFine = obj.interpolate( correction, level+1);
