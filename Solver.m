@@ -131,6 +131,7 @@ classdef Solver < handle
        end
 
        function setupMatrix(obj,pointcloud,level)
+          DEBUGLEVEL = 0;
           disp(sprintf('Setting up matrix for level %d',level))
           tic
           %obj.matrix = sparse(pointcloud.N,pointcloud.N);
@@ -195,6 +196,11 @@ classdef Solver < handle
 
           obj.matrices{level}=sparse(row,col,val);
           toc
+
+          if DEBUGLEVEL>=10
+             figure;
+             spy(obj.matrices{level});
+          end
 
        end
 
