@@ -17,8 +17,8 @@ classdef Pointcloud < handle
                         % 2 = Neumann boundary
         ibound_location % 0 = interior point
         COARSENING = 1
-        HFACTOR_COARSENING = 0.4
-        HFACTOR_ORGANIZATION = 0.2
+        HFACTOR_COARSENING = 0.3
+        HFACTOR_ORGANIZATION = 0.0
     end
     
     methods
@@ -34,7 +34,7 @@ classdef Pointcloud < handle
                 obj.N = round(40/h^2);
                 obj.N = obj.N * ( (obj.ubx-obj.lbx) * (obj.uby-obj.lby) );
                 
-                if ( 1 )
+                if ( 0 )
                    rng(2);
                    obj.coords = zeros(obj.N,2);
                     for i=1:obj.N
