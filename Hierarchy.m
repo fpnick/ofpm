@@ -15,14 +15,19 @@ classdef Hierarchy < handle
         obj.pointclouds{1} = finePointcloud;
         obj.pointclouds{1}.stats();
         i=1;
-        while ( obj.pointclouds{i}.N > 200 && i < obj.MAXLEVELS )
+        while ( obj.pointclouds{i}.N > 1500 && i < obj.MAXLEVELS )
            [ obj.pointclouds{i+1}, obj.fine2coarse{i+1}, obj.coarse2fine{i+1} ] = obj.pointclouds{i}.coarsen;
-           obj.pointclouds{i+1}.findNeighbours();
-%            obj.pointclouds{i+1}.organize;
-           obj.pointclouds{i+1}.stats()
-           i=i+1;
+           if ( obj.pointclouds{i+1}.N < 1500 )
+              obj.depth = i;
+              break;
+           else
+              obj.pointclouds{i+1}.findNeighbours();
+              obj.pointclouds{i+1}.organize;
+              obj.pointclouds{i+1}.stats()
+              i=i+1;
+              obj.depth = i;
+           end
         end
-        obj.depth = length(obj.pointclouds);
       end
 
       function plot(obj,depth)
