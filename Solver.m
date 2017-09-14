@@ -60,7 +60,7 @@ classdef Solver < handle
           figure
           mesh(X,Y,Vq);
           hold on
-          plot3(pointcloud.coords(:,1),pointcloud.coords(:,2),sol,'o')
+          % plot3(pointcloud.coords(:,1),pointcloud.coords(:,2),sol,'o')
           title(descr)
           hold off
           % figure
