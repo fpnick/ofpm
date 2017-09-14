@@ -15,7 +15,7 @@ classdef Multigrid < handle
       ENFORCE_DIAGDOM = 0 % 1: Add 5% to every diagonal
       nPreSmooth    = 2  % n: Number of pre-smoothing steps
       nPostSmooth   = 2 % n: Number of post-smoothing steps
-      nMaxIter      = 20
+      nMaxIter      = 1
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
