@@ -10,6 +10,7 @@ classdef Solver < handle
        sol
        hierarchy
        useMultigrid=1
+       diagDom = -1
     end
 
     methods
@@ -44,6 +45,7 @@ classdef Solver < handle
              rho = -1;
           else
              mg = Multigrid(obj);
+             rng(1);
              [obj.sol,rho] = mg.solve(rand(obj.pointcloud.N,1),10^(-8));
           end
           toc
@@ -139,7 +141,11 @@ classdef Solver < handle
 
           for i=1:pointcloud.N
              if ( pointcloud.ibound_type(i)==0 ) 
-                b = [0;0;0;0;2;2]; 
+                if ( obj.diagDom < 0.0 )
+                   b = [obj.diagDom;0;0;0;0;2;2];
+                else
+                   b = [0;0;0;0;2;2]; 
+                end
                 stencil{i} = obj.setupStencil(pointcloud,i,b);
                 n = max(size(pointcloud.neighbourLists{i}));
                 if ( n<20 )
@@ -210,13 +216,29 @@ classdef Solver < handle
           K = obj.setupK( pointcloud.coords(pointcloud.neighbourLists{i}(1:n),:), pointcloud.coords(i,:));
           W = obj.setupWeightMatrix( pointcloud.distanceLists{i}(1:n), pointcloud.h);
 
-          lambda = (K' * W^2 * K) \ (-b); 
+          inv = (K' * W^2 * K)^(-1);
+          lambda = inv * (-b); 
           stencil = -W^2 * K * lambda;
+
+          if ( obj.diagDom < 0.0 )
+             db = zeros(length(b),1);
+             db(1) = 1;
+             di = -W^2 * K * inv * (-db);
+             alpha = (stencil' * di) * stencil(1) - (stencil' * stencil);
+             alpha = alpha / ( (stencil' * di) - (di' * di)*stencil(1) );
+             stencil = stencil + alpha * di;
+          end
        end
 
        function K = setupK(obj, coords, p0)
           coords_tmp = coords - p0;
-          K = [ ones( size(coords_tmp(:,1))), coords_tmp(:,1), coords_tmp(:,2), coords_tmp(:,1).*coords_tmp(:,2) , coords_tmp(:,1).^2 , coords_tmp(:,2).^2 ];
+          if ( obj.diagDom < 0.0 )
+             deltaf = zeros(size(coords_tmp(:,1)));
+             deltaf(1) = 1;
+             K = [ deltaf, ones( size(coords_tmp(:,1))), coords_tmp(:,1), coords_tmp(:,2), coords_tmp(:,1).*coords_tmp(:,2) , coords_tmp(:,1).^2 , coords_tmp(:,2).^2 ];
+          else
+             K = [ ones( size(coords_tmp(:,1))), coords_tmp(:,1), coords_tmp(:,2), coords_tmp(:,1).*coords_tmp(:,2) , coords_tmp(:,1).^2 , coords_tmp(:,2).^2 ];
+          end
        end
 
        function [ W ] = setupWeightMatrix(obj, distances, h)
