@@ -16,9 +16,15 @@ classdef Pointcloud < handle
                         % 1 = Dirichtel boundary
                         % 2 = Neumann boundary
         ibound_location % 0 = interior point
-        COARSENING = 1
-        HFACTOR_COARSENING = 0.3
-        HFACTOR_ORGANIZATION = 0.0
+        COARSENING = 1  % 0 = Don't coarsen
+                        % 1 = Coarsen everything within a radius of h*HFACTOR_COARSENING
+                        % 2 = Coarsen the ABS_COARSENING closest points
+        COARSENING_KEEPBND = 1
+                        
+        HFACTOR_COARSENING = 0.4
+        ABS_COARSENING = 2
+        HFACTOR_ORGANIZATION = 0.1
+        
     end
     
     methods
@@ -34,7 +40,7 @@ classdef Pointcloud < handle
                 obj.N = round(40/h^2);
                 obj.N = obj.N * ( (obj.ubx-obj.lbx) * (obj.uby-obj.lby) );
                 
-                if ( 0 )
+                if ( 1 )
                    rng(2);
                    obj.coords = zeros(obj.N,2);
                     for i=1:obj.N
@@ -56,7 +62,7 @@ classdef Pointcloud < handle
                 
                 % Insert boundary points
                 hBnd = 1/sqrt(obj.N);
-                % hBnd = 1/(0.5*sqrt(obj.N));
+                hBnd = 1/(2*sqrt(obj.N));
                 x_bottom = obj.lbx:hBnd:obj.ubx;
                 y_bottom = ones(1,size(x_bottom,2))*obj.lby;
                 x_top = x_bottom;
@@ -68,7 +74,7 @@ classdef Pointcloud < handle
                 
                 obj.N = obj.N + length(x_bottom) + length(x_top) + length(x_right) + length(x_left);
                 bc = [ x_bottom' y_bottom'; x_top' y_top'; x_right' y_right'; x_left' y_left' ];
-                obj.coords = [ obj.coords; bc ];
+                obj.coords = [ bc; obj.coords];
 
                 obj.ibound_type = zeros(obj.N,1);
                 obj.ibound_location = zeros(obj.N,1);
@@ -144,6 +150,7 @@ classdef Pointcloud < handle
             hold on
             plot(obj.coords(:,1),obj.coords(:,2),'.');
             plot(obj.coords(obj.ibound_type==2,1),obj.coords(obj.ibound_type==2,2),'rx');
+            plot(obj.coords(obj.ibound_type==1,1),obj.coords(obj.ibound_type==1,2),'gx');
             hold off
         end
 
@@ -179,6 +186,7 @@ classdef Pointcloud < handle
                nF = 0;            
                fine2coarse = zeros(obj.N,1);
                coarse2fine = zeros(nC,1);
+
                for i=1:obj.N
                    if ( level(i) == 0 )
                        level(i) = 2;
@@ -186,18 +194,40 @@ classdef Pointcloud < handle
                        coarse2fine(nC) = i;
                        fine2coarse(i) = nC;
                        for j=2:length(obj.neighbourLists{i})
-                           % if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING && obj.ibound_type(obj.neighbourLists{i}(j)) == 0)
-                           if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING )
+                           if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING && obj.ibound_type(obj.neighbourLists{i}(j)) == 0)
+                           % if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING )
                                level(obj.neighbourLists{i}(j)) = 1;
                                nF = nF +1;
                            end
                        end
                    end
                end             
-               
                % h->H isn't really correct here
                coarsePointcloud = Pointcloud(sqrt((nC+nF)/nC)*obj.h,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound_type(find(level==2)),obj.ibound_location(find(level==2)));
-
+            elseif ( obj.COARSENING == 2 )
+               level = zeros(obj.N,1);
+               nC = 0;
+               nF = 0;            
+               fine2coarse = zeros(obj.N,1);
+               coarse2fine = zeros(nC,1);
+               for i=1:obj.N
+                   if ( level(i) == 0 )
+                       eliminated = 0;
+                       level(i) = 2;
+                       nC = nC + 1;
+                       coarse2fine(nC) = i;
+                       fine2coarse(i) = nC;
+                       for j=2:length(obj.neighbourLists{i})
+                           if ( level(obj.neighbourLists{i}(j)) == 0 && eliminated < obj.ABS_COARSENING )
+                               level(obj.neighbourLists{i}(j)) = 1;
+                               nF = nF +1;
+                               eliminated = eliminated + 1;
+                           end
+                       end
+                   end
+               end 
+               nC
+               coarsePointcloud = Pointcloud(sqrt((nC+nF)/nC)*obj.h,obj.lbx,obj.lby,obj.ubx,obj.uby,obj.coords(find(level==2),:),obj.ibound_type(find(level==2)),obj.ibound_location(find(level==2)));
             end
             
         end
