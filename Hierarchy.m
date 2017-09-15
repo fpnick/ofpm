@@ -7,7 +7,7 @@ classdef Hierarchy < handle
       depth
       fine2coarse
       coarse2fine
-      MAXLEVELS = 1
+      MAXLEVELS = 10
     end
 
     methods
