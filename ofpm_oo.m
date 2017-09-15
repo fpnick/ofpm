@@ -1,4 +1,4 @@
-function [ A,rhs,sol,pointcloud,rho ] = ofpm_oo( h, lbx,lby,ubx,uby,printlevel )
+function [ A,rhs,sol,pointcloud,rho,solver ] = ofpm_oo( h, lbx,lby,ubx,uby,printlevel )
 %OFPM_OO Summary of this function goes here
 %   Detailed explanation goes here
 
