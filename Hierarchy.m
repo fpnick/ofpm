@@ -16,9 +16,9 @@ classdef Hierarchy < handle
         obj.pointclouds{1}.stats();
         i=1;
         obj.depth=1;
-        while ( obj.pointclouds{i}.N > 1500 && i < obj.MAXLEVELS )
+        while ( obj.pointclouds{i}.N > 1200 && i < obj.MAXLEVELS )
            [ obj.pointclouds{i+1}, obj.fine2coarse{i+1}, obj.coarse2fine{i+1} ] = obj.pointclouds{i}.coarsen;
-           if ( obj.pointclouds{i+1}.N < 1500 )
+           if ( obj.pointclouds{i+1}.N < 1200 || obj.pointclouds{i}.N / obj.pointclouds{i+1}.N < 1.5)
               obj.depth = i;
               break;
            else
