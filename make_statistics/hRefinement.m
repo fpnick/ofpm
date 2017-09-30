@@ -1,7 +1,7 @@
 
 addpath('..')
 
-x=0.005:0.001:0.1; 
+x=0.008:0.001:0.07; 
 % x=0.01:0.01:0.07; 
 condition = zeros(length(x),1);
 size = zeros(length(x),1);
@@ -35,7 +35,7 @@ for i=1:length(x)
     % eigmax_scaledBoundary(i) = eigs(A_scaledBoundary,1);
     % diagdom_scaledBoundary(i) = measureDiagDom(A_scaledBoundary);
     
-    matrizen{i} = A;
+%     matrizen{i} = A;
 end
 
 % figure;
