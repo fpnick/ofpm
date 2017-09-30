@@ -171,6 +171,14 @@ classdef Pointcloud < handle
             avgNeighbours = avgNeighbours / obj.N;
             fprintf('Pointcloud size: %d\n', obj.N);
             fprintf('Average neighbours: %f\n', avgNeighbours);
+
+            min_h = min(obj.neighbourLists{1});
+            max_h = max(obj.neighbourLists{1});
+            for i=2:obj.N
+               min_h = min(min(obj.neighbourLists{i}),min_h);
+               max_h = max(max(obj.neighbourLists{i}),max_h);
+            end
+            fprintf('Pointcloud uniformness: %f\n', max_h/min_h);
         end
         
         function [ coarsePointcloud, fine2coarse, coarse2fine ] = coarsen(obj)
