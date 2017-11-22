@@ -237,6 +237,7 @@ classdef Multigrid < handle
 
                for i=1:NFine
                   if ( fine2coarse(i) == 0 ) % F-Point!
+                     % fprintf('F\n');
                      neighbourList = obj.solver.hierarchy.pointclouds{level}.neighbourLists{i};
                      distanceList_hat  = 1./obj.solver.hierarchy.pointclouds{level}.distanceLists{i};
                      nNeighbours   = length(neighbourList);
@@ -264,6 +265,13 @@ classdef Multigrid < handle
                      if (sumWeights>1.1)
                         fprintf('Sum of weights %1.3e\n', sumWeights);
                      end
+                  else
+                     % fprintf('C\n');
+                     row(ptr) = fine2coarse(i);
+                     col(ptr) = i; 
+                     val(ptr) = 1.0;
+                     % fprintf('row, col, val, ptr: %i %i %1.3e %i \n',row(ptr),col(ptr),val(ptr),ptr);
+                     ptr=ptr+1;
                   end
                end
 
@@ -275,8 +283,10 @@ classdef Multigrid < handle
                obj.resOp = sparse(row,col,val);
 
                if ( obj.RESTRICTION == 3 )
-                  sums = sum(obj.resOp,2);
-                  obj.resOp = obj.resOp ./ sums;
+                  sums = sparse(sum(obj.resOp,2));
+                  sums(find(sums==0)) = 1;
+                  obj.resOp = inv(diag(sums)) * obj.resOp;
+                   % obj.resOp = obj.resOp ./ sums;
                end
 
                obj.restriction_setup_done = 1;
