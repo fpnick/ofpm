@@ -225,7 +225,16 @@ classdef Multigrid < handle
          elseif ( obj.RESTRICTION == 2 || obj.RESTRICTION == 3)
 
             if ( obj.restriction_setup_done == 0 )
-               obj.resOp   = zeros( NCoarse, NFine);
+
+               maxentries = 0;
+               for i=1:NFine
+                  maxentries = maxentries + length(obj.solver.hierarchy.pointclouds{level}.neighbourLists{i});
+               end
+               row = zeros(maxentries,1);
+               col = zeros(maxentries,1);
+               val = zeros(maxentries,1);
+               ptr=1;
+
                for i=1:NFine
                   if ( fine2coarse(i) == 0 ) % F-Point!
                      neighbourList = obj.solver.hierarchy.pointclouds{level}.neighbourLists{i};
@@ -242,7 +251,11 @@ classdef Multigrid < handle
                      for j=1:nNeighbours
                         if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
                            % R(fine2coarse(neighbourList(j))) = R(fine2coarse(neighbourList(j))) + resVec(i) * (distanceList_hat(j)/sumDistances);
-                           obj.resOp(fine2coarse(neighbourList(j)),i) = (distanceList_hat(j)/sumDistances);
+                           % obj.resOp(fine2coarse(neighbourList(j)),i) = (distanceList_hat(j)/sumDistances);
+                           row(ptr) = fine2coarse(neighbourList(j));
+                           col(ptr) = i;
+                           val(ptr) = distanceList_hat(j)/sumDistances;
+                           ptr = ptr+1;
                            sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
                            % fprintf('Restricting from %i to %i with weight
                            % %1.3e\n', i,neighbourList(j),(distanceList_hat(j)/sumDistances));
@@ -256,10 +269,14 @@ classdef Multigrid < handle
 
                   % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level+1},R,sprintf('Before'));
 
+               row = row(1:ptr-1);
+               col = col(1:ptr-1);
+               val = val(1:ptr-1);
+               obj.resOp = sparse(row,col,val);
+
                if ( obj.RESTRICTION == 3 )
-                  for i=1:NCoarse
-                     obj.resOp(i,:) = obj.resOp(i,:) / sum(obj.resOp(i,:));
-                  end
+                  sums = sum(obj.resOp,2);
+                  obj.resOp = obj.resOp ./ sums;
                end
 
                obj.restriction_setup_done = 1;
