@@ -250,7 +250,7 @@ classdef Multigrid < handle
 
             for i=1:NCoarse
                if ( obj.solver.hierarchy.pointclouds{level+1}.ibound_type(i) == 0 )
-                  R(i) = 0.25*R(i) + 0.75*resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
+                  R(i) = 0.75*R(i) + 0.25*resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
                else
                   R(i) = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
                end
