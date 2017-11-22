@@ -94,7 +94,7 @@ classdef Multigrid < handle
       % CYCLE  Performe one cycle from level downards.
       %     u = u(level,u,f)  Perform one cycle from level downwards using the
       %                       RHS f and the initial guess u.
-         DEBUGLEVEL = 0;
+         DEBUGLEVEL = 1;
          
          if DEBUGLEVEL>=2
             solution = obj.solver.matrices{level} \ f;
@@ -106,6 +106,10 @@ classdef Multigrid < handle
          if DEBUGLEVEL>=20
             resVec         = obj.solver.matrices{level}*u-f;
             obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},resVec,sprintf('Residual on level %i', level));
+         end
+         if DEBUGLEVEL>0
+            resVec         = obj.solver.matrices{level}*u-f;
+            fprintf(' |Max| residual on level %i: %1.3e\n', level,max(abs(resVec)))
          end
 
 
@@ -129,6 +133,13 @@ classdef Multigrid < handle
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Presmoothed Error on level %i', level));
             end
             resVec         = obj.solver.matrices{level}*u-f;
+            if DEBUGLEVEL>=20
+               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},resVec,sprintf('Presmoothed Residual on level %i', level));
+            end
+            if DEBUGLEVEL>0
+               fprintf(' |Max| presmoothed residual on level %i: %1.3e\n',level, max(abs(resVec)))
+               fprintf(' Sum presmoothed residual on level %i: %1.3e\n',level,sum(resVec))
+            end
             if DEBUGLEVEL>=2
                condition = condest(obj.solver.matrices{level});
                fprintf('Condition is %1.3e on level %i \n', condition, level);
@@ -136,6 +147,10 @@ classdef Multigrid < handle
             resVecCoarse   = obj.restrict( resVec, level);
             if DEBUGLEVEL>=10
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level+1},resVecCoarse,sprintf('Restricted Residual on level %i', level+1));
+            end
+            if DEBUGLEVEL>0
+               fprintf(' |Max| restricted residual on level %i: %1.3e\n', level+1, max(abs(resVecCoarse)))
+               fprintf(' Sum restricted residual on level %i: %1.3e\n',level+1, sum(resVecCoarse))
             end
             correction     = zeros(length(resVecCoarse),1);
             correction     = obj.cycle( level+1, correction, resVecCoarse);
@@ -216,16 +231,18 @@ classdef Multigrid < handle
                         sumDistances = sumDistances + distanceList_hat(j);
                      end
                   end
-                  % sumWeights = 0;
+                  sumWeights = 0;
                   for j=1:nNeighbours
                      if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
                         R(fine2coarse(neighbourList(j))) = R(fine2coarse(neighbourList(j))) + resVec(i) * (distanceList_hat(j)/sumDistances);
-                        % sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
+                        sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
                         % fprintf('Restricting from %i to %i with weight
                         % %1.3e\n', i,neighbourList(j),(distanceList_hat(j)/sumDistances));
                      end
                   end
-                  % fprintf('Sum of weights %1.3e\n', sumWeights);
+                  if (sumWeights>1.1)
+                     fprintf('Sum of weights %1.3e\n', sumWeights);
+                  end
                end
             end
 
@@ -233,7 +250,7 @@ classdef Multigrid < handle
 
             for i=1:NCoarse
                if ( obj.solver.hierarchy.pointclouds{level+1}.ibound_type(i) == 0 )
-                  R(i) = 0.75*R(i) + 0.25*resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
+                  R(i) = 0.25*R(i) + 0.75*resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
                else
                   R(i) = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
                end
