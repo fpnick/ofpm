@@ -18,6 +18,10 @@ classdef Multigrid < handle
       nPreSmooth    = 1  % n: Number of pre-smoothing steps
       nPostSmooth   = 1 % n: Number of post-smoothing steps
       nMaxIter      = 10
+
+      %
+      restriction_setup_done = 0
+      resOp
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -210,7 +214,6 @@ classdef Multigrid < handle
          ibound_type_fine = obj.solver.hierarchy.pointclouds{level}.ibound_type;
 
          R       = zeros( NCoarse, 1);
-         ResOp   = zeros( NCoarse, NFine);
 
          if ( obj.RESTRICTION == 1 )
             for i=1:NCoarse
@@ -221,43 +224,48 @@ classdef Multigrid < handle
 
          elseif ( obj.RESTRICTION == 2 || obj.RESTRICTION == 3)
 
-            for i=1:NFine
-               if ( fine2coarse(i) == 0 ) % F-Point!
-                  neighbourList = obj.solver.hierarchy.pointclouds{level}.neighbourLists{i};
-                  distanceList_hat  = 1./obj.solver.hierarchy.pointclouds{level}.distanceLists{i};
-                  nNeighbours   = length(neighbourList);
+            if ( obj.restriction_setup_done == 0 )
+               obj.resOp   = zeros( NCoarse, NFine);
+               for i=1:NFine
+                  if ( fine2coarse(i) == 0 ) % F-Point!
+                     neighbourList = obj.solver.hierarchy.pointclouds{level}.neighbourLists{i};
+                     distanceList_hat  = 1./obj.solver.hierarchy.pointclouds{level}.distanceLists{i};
+                     nNeighbours   = length(neighbourList);
 
-                  sumDistances = 0;
-                  for j=1:nNeighbours
-                     if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
-                        sumDistances = sumDistances + distanceList_hat(j);
+                     sumDistances = 0;
+                     for j=1:nNeighbours
+                        if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
+                           sumDistances = sumDistances + distanceList_hat(j);
+                        end
+                     end
+                     sumWeights = 0;
+                     for j=1:nNeighbours
+                        if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
+                           % R(fine2coarse(neighbourList(j))) = R(fine2coarse(neighbourList(j))) + resVec(i) * (distanceList_hat(j)/sumDistances);
+                           obj.resOp(fine2coarse(neighbourList(j)),i) = (distanceList_hat(j)/sumDistances);
+                           sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
+                           % fprintf('Restricting from %i to %i with weight
+                           % %1.3e\n', i,neighbourList(j),(distanceList_hat(j)/sumDistances));
+                        end
+                     end
+                     if (sumWeights>1.1)
+                        fprintf('Sum of weights %1.3e\n', sumWeights);
                      end
                   end
-                  sumWeights = 0;
-                  for j=1:nNeighbours
-                     if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
-                        % R(fine2coarse(neighbourList(j))) = R(fine2coarse(neighbourList(j))) + resVec(i) * (distanceList_hat(j)/sumDistances);
-                        ResOp(fine2coarse(neighbourList(j)),i) = (distanceList_hat(j)/sumDistances);
-                        sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
-                        % fprintf('Restricting from %i to %i with weight
-                        % %1.3e\n', i,neighbourList(j),(distanceList_hat(j)/sumDistances));
-                     end
-                  end
-                  if (sumWeights>1.1)
-                     fprintf('Sum of weights %1.3e\n', sumWeights);
+               end
+
+                  % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level+1},R,sprintf('Before'));
+
+               if ( obj.RESTRICTION == 3 )
+                  for i=1:NCoarse
+                     obj.resOp(i,:) = obj.resOp(i,:) / sum(obj.resOp(i,:));
                   end
                end
+
+               obj.restriction_setup_done = 1;
             end
 
-               % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level+1},R,sprintf('Before'));
-
-            if ( obj.RESTRICTION == 3 )
-               for i=1:NCoarse
-                  ResOp(i,:) = ResOp(i,:) / sum(ResOp(i,:));
-               end
-            end
-
-            R = 0.75*ResOp*resVec + 0.25*resVec(fine2coarse~=0);
+            R = 0.75*obj.resOp*resVec + 0.25*resVec(fine2coarse~=0);
             for i=1:NCoarse
                if ( obj.solver.hierarchy.pointclouds{level+1}.ibound_type(i) ~= 0 )
                   R(i) = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
