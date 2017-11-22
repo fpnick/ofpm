@@ -258,6 +258,7 @@ classdef Multigrid < handle
 
             scale = obj.solver.hierarchy.pointclouds{level}.h / obj.solver.hierarchy.pointclouds{level+1}.h;
             scale = scale^2;
+            scale = 1.0;
             % scale = scale*obj.solver.hierarchy.pointclouds{level}.HFACTOR_COARSENING
             R = R * (scale);
 
