@@ -9,14 +9,15 @@ classdef Multigrid < handle
 
       % Parameters
       SMOOTHER      = 1  % 1: Gauss-Seidel
-      RESTRICTION   = 2  % 1: Injection
-                         % 2: "Half weigting"
+      RESTRICTION   = 3  % 1: Injection
+                         % 2: "Half weighting"
+                         % 3: "Half weighting" with scaling ResOp
       INTERPOLATION = 1  % 1: Weighted based on distance
       NORMALIZE     = 0  % 1: Normalize matrices on every level
       ENFORCE_DIAGDOM = 0 % 1: Add 5% to every diagonal
       nPreSmooth    = 1  % n: Number of pre-smoothing steps
       nPostSmooth   = 1 % n: Number of post-smoothing steps
-      nMaxIter      = 1
+      nMaxIter      = 10
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -209,6 +210,7 @@ classdef Multigrid < handle
          ibound_type_fine = obj.solver.hierarchy.pointclouds{level}.ibound_type;
 
          R       = zeros( NCoarse, 1);
+         ResOp   = zeros( NCoarse, NFine);
 
          if ( obj.RESTRICTION == 1 )
             for i=1:NCoarse
@@ -217,7 +219,7 @@ classdef Multigrid < handle
                R(i) = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) ) * 1.0;
             end
 
-         elseif ( obj.RESTRICTION == 2 )
+         elseif ( obj.RESTRICTION == 2 || obj.RESTRICTION == 3)
 
             for i=1:NFine
                if ( fine2coarse(i) == 0 ) % F-Point!
@@ -234,7 +236,8 @@ classdef Multigrid < handle
                   sumWeights = 0;
                   for j=1:nNeighbours
                      if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
-                        R(fine2coarse(neighbourList(j))) = R(fine2coarse(neighbourList(j))) + resVec(i) * (distanceList_hat(j)/sumDistances);
+                        % R(fine2coarse(neighbourList(j))) = R(fine2coarse(neighbourList(j))) + resVec(i) * (distanceList_hat(j)/sumDistances);
+                        ResOp(fine2coarse(neighbourList(j)),i) = (distanceList_hat(j)/sumDistances);
                         sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
                         % fprintf('Restricting from %i to %i with weight
                         % %1.3e\n', i,neighbourList(j),(distanceList_hat(j)/sumDistances));
@@ -248,10 +251,15 @@ classdef Multigrid < handle
 
                % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level+1},R,sprintf('Before'));
 
+            if ( obj.RESTRICTION == 3 )
+               for i=1:NCoarse
+                  ResOp(i,:) = ResOp(i,:) / sum(ResOp(i,:));
+               end
+            end
+
+            R = 0.75*ResOp*resVec + 0.25*resVec(fine2coarse~=0);
             for i=1:NCoarse
-               if ( obj.solver.hierarchy.pointclouds{level+1}.ibound_type(i) == 0 )
-                  R(i) = 0.75*R(i) + 0.25*resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
-               else
+               if ( obj.solver.hierarchy.pointclouds{level+1}.ibound_type(i) ~= 0 )
                   R(i) = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) );
                end
             end
