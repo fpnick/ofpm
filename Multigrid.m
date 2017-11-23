@@ -253,6 +253,8 @@ classdef Multigrid < handle
 
                      sumDistances = 0;
                      for j=2:nNeighbours
+                        % This means I'm looking for C-Neighbours that are
+                        % interior points.
                         if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
                         % if ( fine2coarse(neighbourList(j)) ~= 0)
                            sumDistances = sumDistances + distanceList_hat(j);
@@ -260,6 +262,8 @@ classdef Multigrid < handle
                      end
                      sumWeights = 0;
                      for j=2:nNeighbours
+                        % This means I'm looking for C-Neighbours that are
+                        % interior points.
                         if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
                         % if ( fine2coarse(neighbourList(j)) ~= 0 )
                            row(ptr) = fine2coarse(neighbourList(j));
