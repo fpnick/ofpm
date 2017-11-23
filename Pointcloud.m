@@ -202,8 +202,8 @@ classdef Pointcloud < handle
                        coarse2fine(nC) = i;
                        fine2coarse(i) = nC;
                        for j=2:length(obj.neighbourLists{i})
-                           if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING && obj.ibound_type(obj.neighbourLists{i}(j)) == 0)
-                           % if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING )
+                           % if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING && obj.ibound_type(obj.neighbourLists{i}(j)) == 0)
+                           if ( level(obj.neighbourLists{i}(j)) == 0 && obj.distanceLists{i}(j) <= obj.h*obj.HFACTOR_COARSENING )
                                level(obj.neighbourLists{i}(j)) = 1;
                                nF = nF +1;
                            end
