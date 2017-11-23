@@ -51,9 +51,9 @@ if dim~=1
     ind = permute(ind,sortInd);
 end
 inds = repmat({1},1,n);inds{1}=':';
-if ~issorted( data(inds{:}) )
-    warning('The input data is not sorted along the specified dimension');
-end
+% if ~issorted( data(inds{:}) )
+    % warning('The input data is not sorted along the specified dimension');
+% end
 
 s = size(ind);
 nData = numel(data);
