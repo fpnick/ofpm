@@ -46,7 +46,7 @@ classdef Solver < handle
           else
              mg = Multigrid(obj);
              rng(1);
-             [obj.sol,rho] = mg.solve(zeros(obj.pointcloud.N,1),10^(-15));
+             [obj.sol,rho] = mg.solve(zeros(obj.pointcloud.N,1),10^(-10));
           end
           toc
 
