@@ -322,19 +322,19 @@ classdef Multigrid < handle
 
          if ( obj.INTERPOLATION == 1 )
             for i=1:NFine
-               if ( fine2coarse(i) == 0 )
+               if ( fine2coarse(i) == 0 ) % F-Point!
                   neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
                   distanceList_hat  = 1./obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
                   nNeighbours   = length(neighbourList);
 
                   sumDistances = 0;
-                  for j=1:nNeighbours
-                     if ( fine2coarse(neighbourList(j)) ~= 0 )
+                  for j=2:nNeighbours
+                     if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
                         sumDistances = sumDistances + distanceList_hat(j);
                      end
                   end
-                  for j=1:nNeighbours
-                     if ( fine2coarse(neighbourList(j)) ~= 0 )
+                  for j=2:nNeighbours
+                     if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
                         r(i) = r(i) + correction(fine2coarse(neighbourList(j))) * (distanceList_hat(j)/sumDistances);
                      end
                   end
