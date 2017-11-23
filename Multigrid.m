@@ -8,7 +8,8 @@ classdef Multigrid < handle
       solver % Note that solver contains the complete hierarchy + matrices
 
       % Parameters
-      SMOOTHER      = 1  % 1: Gauss-Seidel
+      SMOOTHER      = 2  % 1: Gauss-Seidel
+                         % 2: Gauss-Seidel with RCM reordering
       RESTRICTION   = 3  % 1: Injection
                          % 2: "Half weighting"
                          % 3: "Half weighting" with row-scaling ResOp
@@ -210,6 +211,24 @@ classdef Multigrid < handle
               u0=u;
             end
          end
+
+         if ( obj.SMOOTHER == 2 ) 
+            r = symrcm(A);
+            Ar = A(r,r);
+            ur = u(r);
+            fr = f(r);
+            Lr=tril(Ar,0);
+            Rr=triu(Ar,1);
+            u0 = ur;
+            for i=1:iter
+              % fprintf(' Smoothing iter %i\n',iter)
+              ur = Lr\(fr - Rr*u0);
+              u0=ur;
+            end
+
+            u = sort_back(ur,r',1);
+         end
+
       end
 
       function R = restrict( obj, resVec, level)
