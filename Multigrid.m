@@ -274,24 +274,24 @@ classdef Multigrid < handle
 
                      sumDistances = 0;
                      for j=2:nNeighbours
-                        % This means I'm looking for C-Neighbours that are
-                        % interior points.
-                        if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
-                        % if ( fine2coarse(neighbourList(j)) ~= 0)
+                        % if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
+                        if ( fine2coarse(neighbourList(j)) ~= 0)
                            sumDistances = sumDistances + distanceList_hat(j);
                         end
                      end
                      sumWeights = 0;
                      for j=2:nNeighbours
-                        % This means I'm looking for C-Neighbours that are
-                        % interior points.
                         if ( fine2coarse(neighbourList(j)) ~= 0 && ibound_type_fine(neighbourList(j)) == 0)
                         % if ( fine2coarse(neighbourList(j)) ~= 0 )
-                           row(ptr) = fine2coarse(neighbourList(j));
-                           col(ptr) = i;
-                           val(ptr) = distanceList_hat(j)/sumDistances;
-                           ptr = ptr+1;
-                           sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
+                           if ( ibound_type_fine(neighbourList(j))==0 )
+                              row(ptr) = fine2coarse(neighbourList(j));
+                              col(ptr) = i;
+                              val(ptr) = distanceList_hat(j)/sumDistances;
+                              ptr = ptr+1;
+                              sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
+                           else 
+                              % fprintf('C neighbour skipped')
+                           end
                         end
                      end
                      if (sumWeights>1.1)
@@ -322,11 +322,11 @@ classdef Multigrid < handle
             R = obj.resOp{level}*resVec;
             % R = 0.50*obj.resOp{level}*resVec + 0.50*resVec(fine2coarse~=0);
 
-            for i=1:NCoarse
-               if ( obj.solver.hierarchy.pointclouds{level+1}.ibound_type(i) ~= 0 )
-                  R(i) = resVec( coarse2fine(i) );
-               end
-            end
+            % for i=1:NCoarse
+               % if ( obj.solver.hierarchy.pointclouds{level+1}.ibound_type(i) ~= 0 )
+                  % R(i) = resVec( coarse2fine(i) );
+               % end
+            % end
 
          end
       end
