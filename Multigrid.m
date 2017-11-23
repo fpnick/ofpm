@@ -100,16 +100,24 @@ classdef Multigrid < handle
       % CYCLE  Performe one cycle from level downards.
       %     u = u(level,u,f)  Perform one cycle from level downwards using the
       %                       RHS f and the initial guess u.
-         DEBUGLEVEL = 1;
+         DEBUGLEVEL = 0;
          
-         if DEBUGLEVEL>=2
+         if DEBUGLEVEL>=0
             solution = obj.solver.matrices{level} \ f;
             err = u-solution;
+            if ( level==1 )
+               fprintf(' |Max| error on level %i: %1.3e\n', level,max(abs(err)))
+               [~,index] = max(abs(err));
+               fprintf('   Index: %i\n', index);
+               xcoo = obj.solver.hierarchy.pointclouds{level}.coords(index,1);
+               ycoo = obj.solver.hierarchy.pointclouds{level}.coords(index,2);
+               fprintf('   Coords: %1.3e , %1.3e\n', xcoo,ycoo)
+            end
          end
-         if DEBUGLEVEL>=20
+         if DEBUGLEVEL>=10
             obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Error on level %i', level));
          end
-         if DEBUGLEVEL>=20
+         if DEBUGLEVEL>=10
             resVec         = obj.solver.matrices{level}*u-f;
             obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},resVec,sprintf('Residual on level %i', level));
          end
@@ -134,12 +142,12 @@ classdef Multigrid < handle
             end
          else
             u              = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
-            if DEBUGLEVEL>=10
+            if DEBUGLEVEL>=20
                err = u-solution;
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Presmoothed Error on level %i', level));
             end
             resVec         = obj.solver.matrices{level}*u-f;
-            if DEBUGLEVEL>=20
+            if DEBUGLEVEL>=10
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},resVec,sprintf('Presmoothed Residual on level %i', level));
             end
             if DEBUGLEVEL>0
@@ -166,11 +174,11 @@ classdef Multigrid < handle
             % correction     = obj.cycle( level+1, correction, obj.solver.rhss{level+1});
             correctionFine = obj.interpolate( correction, level+1);
             % correctionFine = 0.7 * correctionFine;
-            if DEBUGLEVEL>=2
+            if DEBUGLEVEL>=20
                fprintf('Max error %1.3e\n',max(err));
                fprintf('Max corr_coarse %1.3e, Max corr_fine %1.3e \n',max(correction),max(correctionFine))
             end
-            if DEBUGLEVEL>=10
+            if DEBUGLEVEL>=20
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},correctionFine,sprintf('Correction on level %i', level));
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},correctionFine-err,sprintf('corr-err on level %i', level));
             end
