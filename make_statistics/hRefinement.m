@@ -2,7 +2,7 @@
 addpath('..')
 
 % x=0.008:0.001:0.07; 
-x=0.01:0.01:0.07; 
+x=0.03:0.01:0.07; 
 condition = zeros(length(x),1);
 size = zeros(length(x),1);
 eigmax = zeros(length(x),1);
