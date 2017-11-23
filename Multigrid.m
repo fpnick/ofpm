@@ -57,7 +57,7 @@ classdef Multigrid < handle
          if DEBUGLEVEL>=10
             condition = condest(obj.solver.matrices{1});
             fprintf('Condition is %1.3e\n', condition);
-            obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},resVec,sprintf('Initial Residual'));
+            % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},resVec,sprintf('Initial Residual'));
             solution_db = obj.solver.matrices{1} \ obj.solver.rhss{1};
          end
 
@@ -74,12 +74,12 @@ classdef Multigrid < handle
             iterations = iterations + 1;
 
             if DEBUGLEVEL>=20
-               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},resVec,sprintf('Residual after iteration %i', iterations));
+               % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},resVec,sprintf('Residual after iteration %i', iterations));
             end
 
             if DEBUGLEVEL>=10
                err = u-solution_db;
-               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},err,sprintf('Error after iteration %i', iterations));
+               % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{1},err,sprintf('Error after iteration %i', iterations));
             end
 
             fprintf('Residual after iteration %i: %1.3e\n', iterations,res);
@@ -116,7 +116,7 @@ classdef Multigrid < handle
             end
          end
          if DEBUGLEVEL>=10
-            obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Error on level %i', level));
+            % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},err,sprintf('Error on level %i', level));
          end
          if DEBUGLEVEL>=10
             resVec         = obj.solver.matrices{level}*u-f;
@@ -138,8 +138,8 @@ classdef Multigrid < handle
                % spy(obj.solver.matrices{level});
             end
             if DEBUGLEVEL>=10
-               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},u,sprintf('CG solution'));
-               obj.solver.hierarchy.pointclouds{level}.plot();
+               % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},u,sprintf('CG solution'));
+               % obj.solver.hierarchy.pointclouds{level}.plot();
             end
          else
             u              = obj.smooth( obj.solver.matrices{level}, u, f, obj.nPreSmooth);
@@ -149,7 +149,7 @@ classdef Multigrid < handle
             end
             resVec         = obj.solver.matrices{level}*u-f;
             if DEBUGLEVEL>=10
-               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},resVec,sprintf('Presmoothed Residual on level %i', level));
+               % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},resVec,sprintf('Presmoothed Residual on level %i', level));
             end
             if DEBUGLEVEL>0
                fprintf(' |Max| presmoothed residual on level %i: %1.3e\n',level, max(abs(resVec)))
@@ -161,7 +161,7 @@ classdef Multigrid < handle
             end
             resVecCoarse   = obj.restrict( resVec, level);
             if DEBUGLEVEL>=10
-               obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level+1},resVecCoarse,sprintf('Restricted Residual on level %i', level+1));
+               % obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level+1},resVecCoarse,sprintf('Restricted Residual on level %i', level+1));
             end
             if DEBUGLEVEL>0
                fprintf(' |Max| restricted residual on level %i: %1.3e\n', level+1, max(abs(resVecCoarse)))
@@ -176,10 +176,12 @@ classdef Multigrid < handle
             correctionFine = obj.interpolate( correction, level+1);
             % correctionFine = 0.7 * correctionFine;
             if DEBUGLEVEL>=20
+               err = u-solution;
                fprintf('Max error %1.3e\n',max(err));
                fprintf('Max corr_coarse %1.3e, Max corr_fine %1.3e \n',max(correction),max(correctionFine))
             end
             if DEBUGLEVEL>=20
+               err = u-solution;
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},correctionFine,sprintf('Correction on level %i', level));
                obj.solver.plotSolution(obj.solver.hierarchy.pointclouds{level},correctionFine-err,sprintf('corr-err on level %i', level));
             end
