@@ -2,6 +2,8 @@ function [ A,rhs,sol,pointcloud,rho,solver ] = ofpm_oo( h, lbx,lby,ubx,uby,print
 %OFPM_OO Summary of this function goes here
 %   Detailed explanation goes here
 
+addpath('./sort_back')
+
 solver=Solver(h,lbx,lby,ubx,uby,printlevel);
 rho = solver.advance();
 

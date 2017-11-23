@@ -18,7 +18,7 @@ classdef Multigrid < handle
       ENFORCE_DIAGDOM = 0 % 1: Add 5% to every diagonal
       nPreSmooth    = 1  % n: Number of pre-smoothing steps
       nPostSmooth   = 1 % n: Number of post-smoothing steps
-      nMaxIter      = 20
+      nMaxIter      = 100
 
       %
       restriction_setup_done
@@ -312,6 +312,7 @@ classdef Multigrid < handle
 
                if ( obj.RESTRICTION == 3 )
                   sums = sparse(sum(obj.resOp{level},2));
+                  % Consider using the other Vorschlag from Stackoverflow
                   obj.resOp{level} = diag(1./sums) * obj.resOp{level};
                end
 
