@@ -357,7 +357,9 @@ classdef Multigrid < handle
                   sumDistances = 0;
                   for j=2:nNeighbours
                      if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
-                        sumDistances = sumDistances + distanceList_hat(j);
+                        if ( ibound_type_fine(neighbourList(j)) == 0 )
+                           sumDistances = sumDistances + distanceList_hat(j);
+                        end
                      end
                   end
                   for j=2:nNeighbours
