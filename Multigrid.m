@@ -412,10 +412,6 @@ classdef Multigrid < handle
                val = val(1:ptr-1);
                obj.interOp{level} = sparse(row,col,val);
                
-               size(obj.interOp{level})
-               min(sum(obj.interOp{level},2))
-               max(sum(obj.interOp{level},2))
-
                obj.interpolation_setup_done(level) = 1;
             end
 
