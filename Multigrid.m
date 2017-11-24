@@ -28,6 +28,8 @@ classdef Multigrid < handle
       %
       restriction_setup_done
       resOp
+      interpolation_setup_done
+      interOp
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,6 +39,7 @@ classdef Multigrid < handle
       function obj = Multigrid(solver)
          obj.solver = solver;
          obj.restriction_setup_done = zeros( obj.solver.hierarchy.depth, 1 );
+         obj.interpolation_setup_done = zeros( obj.solver.hierarchy.depth, 1 );
       end
 
       function [solution,rho] = solve(obj,u,tol)
@@ -349,33 +352,69 @@ classdef Multigrid < handle
          r           = zeros (NFine, 1);
          ibound_type_fine = obj.solver.hierarchy.pointclouds{level-1}.ibound_type;
 
-         if ( obj.INTERPOLATION == 1 || obj.INTERPOLATION == 2 || obj.INTERPOLATION == 3)
-            for i=1:NFine
-               if ( fine2coarse(i) == 0 ) % F-Point!
-                  neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
-                  distanceList_hat  = 1./obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
-                  nNeighbours   = length(neighbourList);
+         if ( obj.INTERPOLATION == 1 || obj.INTERPOLATION == 2 || obj.INTERPOLATION == 3 || obj.INTERPOLATION == 4)
 
-                  sumDistances = 0;
-                  for j=2:nNeighbours
-                     if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
-                        if ( ibound_type_fine(neighbourList(j)) == 0 && obj.INTERPOLATION == 3 )
-                           sumDistances = sumDistances + distanceList_hat(j);
-                        end
-                     end
-                  end
-                  for j=2:nNeighbours
-                     if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
-                        if ( ibound_type_fine(neighbourList(j)) == 0 || obj.INTERPOLATION == 1)
-                           r(i) = r(i) + correction(fine2coarse(neighbourList(j))) * (distanceList_hat(j)/sumDistances);
-                        end
-                     end
-                  end
-               else
-                  % fprintf('i %i, fine2coarse %i\n',i,fine2coarse(i));
-                  r(i) = correction(fine2coarse(i));
+            if ( obj.interpolation_setup_done(level) == 0 )
+
+               maxentries = 0;
+               for i=1:NFine
+                  maxentries = maxentries + length(obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i});
                end
+               row = zeros(maxentries,1);
+               col = zeros(maxentries,1);
+               val = zeros(maxentries,1);
+               ptr=1;
+
+               for i=1:NFine
+                  if ( fine2coarse(i) == 0 ) % F-Point!
+                     neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
+                     distanceList_hat  = 1./obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
+                     nNeighbours   = length(neighbourList);
+
+                     sumDistances = 0;
+                     for j=2:nNeighbours
+                        if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
+                           if ( ibound_type_fine(neighbourList(j)) == 0 && obj.INTERPOLATION == 3 )
+                              sumDistances = sumDistances + distanceList_hat(j);
+                           end
+                        end
+                     end
+                     for j=2:nNeighbours
+                        if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
+                           if ( ibound_type_fine(neighbourList(j)) == 0 || obj.INTERPOLATION == 1)
+                              row(ptr) = i;
+                              col(ptr) = fine2coarse(neighbourList(j));
+                              val(ptr) = distanceList_hat(j)/sumDistances;
+                              ptr = ptr+1;
+                              % r(i) = r(i) + correction(fine2coarse(neighbourList(j))) * (distanceList_hat(j)/sumDistances);
+                           end
+                        end
+                     end
+                  else
+                     % fprintf('i %i, fine2coarse %i\n',i,fine2coarse(i));
+                     % r(i) = correction(fine2coarse(i));
+                     row(ptr) = i;
+                     col(ptr) = fine2coarse(i);
+                     val(ptr) = 1.0;
+                     ptr = ptr+1;
+                  end
+               end
+
+               row = row(1:ptr-1);
+               col = col(1:ptr-1);
+               val = val(1:ptr-1);
+               obj.interOp{level} = sparse(row,col,val);
+
+               if ( obj.INTERPOLATION == 4 )
+                  sums = sparse(sum(obj.interOp{level},2));
+                  [rowidx, colidx, vals] = find(obj.interOp{level});
+                  obj.interOp{level} = sparse(rowidx, colidx, vals./sums(rowidx),size(obj.interOp{level},1), size(obj.resOp{level},2));
+               end
+
+               obj.interpolation_setup_done(level) = 1;
             end
+
+            r = obj.interOp{level}*correction;
          end
       end
       
