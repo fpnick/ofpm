@@ -13,10 +13,12 @@ classdef Multigrid < handle
       RESTRICTION   = 3  % 1: Injection
                          % 2: "Half weighting"
                          % 3: "Half weighting" with row-scaling ResOp
-      INTERPOLATION = 1  % 1: Weighted based on distance
+      INTERPOLATION = 3  % 1: Weighted based on distance
                          % 2: like 1 but boundary couplings are taken into
                          % account when computing weights, but not for
                          % interpolation
+                         % 3: Don't consider boundary points when interpolating
+                         % to interior points at all.
       NORMALIZE     = 0  % 1: Normalize matrices on every level
       ENFORCE_DIAGDOM = 0 % 1: Add 5% to every diagonal
       nPreSmooth    = 1  % n: Number of pre-smoothing steps
@@ -347,7 +349,7 @@ classdef Multigrid < handle
          r           = zeros (NFine, 1);
          ibound_type_fine = obj.solver.hierarchy.pointclouds{level-1}.ibound_type;
 
-         if ( obj.INTERPOLATION == 1 || obj.INTERPOLATION == 2)
+         if ( obj.INTERPOLATION == 1 || obj.INTERPOLATION == 2 || obj.INTERPOLATION == 3)
             for i=1:NFine
                if ( fine2coarse(i) == 0 ) % F-Point!
                   neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
@@ -357,7 +359,7 @@ classdef Multigrid < handle
                   sumDistances = 0;
                   for j=2:nNeighbours
                      if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
-                        if ( ibound_type_fine(neighbourList(j)) == 0 )
+                        if ( ibound_type_fine(neighbourList(j)) == 0 && obj.INTERPOLATION == 3 )
                            sumDistances = sumDistances + distanceList_hat(j);
                         end
                      end
