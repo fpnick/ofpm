@@ -13,12 +13,15 @@ classdef Multigrid < handle
       RESTRICTION   = 3  % 1: Injection
                          % 2: "Half weighting"
                          % 3: "Half weighting" with row-scaling ResOp
-      INTERPOLATION = 3  % 1: Weighted based on distance
+      INTERPOLATION = 4  % 1: Weighted based on distance
                          % 2: like 1 but boundary couplings are taken into
                          % account when computing weights, but not for
                          % interpolation
                          % 3: Don't consider boundary points when interpolating
                          % to interior points at all.
+                         % 4: like 2, but scale rows of the interpolation so
+                         % that the row sum is 1. This means incoming weights
+                         % sum up to 1 at every F-Point.
       NORMALIZE     = 0  % 1: Normalize matrices on every level
       ENFORCE_DIAGDOM = 0 % 1: Add 5% to every diagonal
       nPreSmooth    = 1  % n: Number of pre-smoothing steps
@@ -366,6 +369,7 @@ classdef Multigrid < handle
                ptr=1;
 
                for i=1:NFine
+                  sumOfInterWeights = 0;
                   if ( fine2coarse(i) == 0 ) % F-Point!
                      neighbourList = obj.solver.hierarchy.pointclouds{level-1}.neighbourLists{i};
                      distanceList_hat  = 1./obj.solver.hierarchy.pointclouds{level-1}.distanceLists{i};
@@ -374,11 +378,12 @@ classdef Multigrid < handle
                      sumDistances = 0;
                      for j=2:nNeighbours
                         if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
-                           if ( ibound_type_fine(neighbourList(j)) == 0 && obj.INTERPOLATION == 3 )
+                           if ( obj.INTERPOLATION~= 3 || ibound_type_fine(neighbourList(j)) == 0 )
                               sumDistances = sumDistances + distanceList_hat(j);
                            end
                         end
                      end
+                     ptr_mark = ptr;
                      for j=2:nNeighbours
                         if ( fine2coarse(neighbourList(j)) ~= 0 ) % C-Neighbour
                            if ( ibound_type_fine(neighbourList(j)) == 0 || obj.INTERPOLATION == 1)
@@ -386,13 +391,15 @@ classdef Multigrid < handle
                               col(ptr) = fine2coarse(neighbourList(j));
                               val(ptr) = distanceList_hat(j)/sumDistances;
                               ptr = ptr+1;
-                              % r(i) = r(i) + correction(fine2coarse(neighbourList(j))) * (distanceList_hat(j)/sumDistances);
+                              sumOfInterWeights = sumOfInterWeights+val(ptr-1);
                            end
                         end
                      end
+                     if ( obj.INTERPOLATION == 4 && sumOfInterWeights < 1.0 )
+                        val(ptr_mark:ptr-1) = val(ptr_mark:ptr-1) / sumOfInterWeights;
+                     end
+
                   else
-                     % fprintf('i %i, fine2coarse %i\n',i,fine2coarse(i));
-                     % r(i) = correction(fine2coarse(i));
                      row(ptr) = i;
                      col(ptr) = fine2coarse(i);
                      val(ptr) = 1.0;
@@ -404,12 +411,10 @@ classdef Multigrid < handle
                col = col(1:ptr-1);
                val = val(1:ptr-1);
                obj.interOp{level} = sparse(row,col,val);
-
-               if ( obj.INTERPOLATION == 4 )
-                  sums = sparse(sum(obj.interOp{level},2));
-                  [rowidx, colidx, vals] = find(obj.interOp{level});
-                  obj.interOp{level} = sparse(rowidx, colidx, vals./sums(rowidx),size(obj.interOp{level},1), size(obj.resOp{level},2));
-               end
+               
+               size(obj.interOp{level})
+               min(sum(obj.interOp{level},2))
+               max(sum(obj.interOp{level},2))
 
                obj.interpolation_setup_done(level) = 1;
             end
