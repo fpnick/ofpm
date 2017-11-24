@@ -312,8 +312,9 @@ classdef Multigrid < handle
 
                if ( obj.RESTRICTION == 3 )
                   sums = sparse(sum(obj.resOp{level},2));
-                  % Consider using the other Vorschlag from Stackoverflow
-                  obj.resOp{level} = diag(1./sums) * obj.resOp{level};
+                  [rowidx, colidx, vals] = find(obj.resOp{level});
+                  obj.resOp{level} = sparse(rowidx, colidx, vals./sums(rowidx),size(obj.resOp{level},1), size(obj.resOp{level},2));
+                  % obj.resOp{level} = diag(1./sums) * obj.resOp{level};
                end
 
                obj.restriction_setup_done(level) = 1;
