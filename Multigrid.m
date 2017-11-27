@@ -234,7 +234,6 @@ classdef Multigrid < handle
             Rr=triu(Ar,1);
             u0 = ur;
             for i=1:iter
-              % fprintf(' Smoothing iter %i\n',iter)
               ur = Lr\(fr - Rr*u0);
               u0=ur;
             end
@@ -259,8 +258,6 @@ classdef Multigrid < handle
 
          if ( obj.RESTRICTION == 1 )
             for i=1:NCoarse
-               % fprintf('i %i, coarse2fine %i\n',i,obj.solver.hierarchy.coarse2fine{level+1}(i));
-%                R(i) = resVec( obj.solver.hierarchy.coarse2fine{level+1}(i) ) * obj.solver.hierarchy.pointclouds{level}.HFACTOR_COARSENING;
                R(i) = resVec( coarse2fine(i) ) * 1.0;
             end
 
@@ -300,8 +297,6 @@ classdef Multigrid < handle
                               val(ptr) = distanceList_hat(j)/sumDistances;
                               ptr = ptr+1;
                               sumWeights = sumWeights+(distanceList_hat(j)/sumDistances);
-                           else 
-                              % fprintf('C neighbour skipped')
                            end
                         end
                      end
@@ -325,21 +320,12 @@ classdef Multigrid < handle
                   sums = sparse(sum(obj.resOp{level},2));
                   [rowidx, colidx, vals] = find(obj.resOp{level});
                   obj.resOp{level} = sparse(rowidx, colidx, vals./sums(rowidx),size(obj.resOp{level},1), size(obj.resOp{level},2));
-                  % obj.resOp{level} = diag(1./sums) * obj.resOp{level};
                end
 
                obj.restriction_setup_done(level) = 1;
             end
 
-            % R = 0.75*obj.resOp{level}*resVec + 0.25*resVec(fine2coarse~=0);
             R = obj.resOp{level}*resVec;
-            % R = 0.50*obj.resOp{level}*resVec + 0.50*resVec(fine2coarse~=0);
-
-            % for i=1:NCoarse
-               % if ( obj.solver.hierarchy.pointclouds{level+1}.ibound_type(i) ~= 0 )
-                  % R(i) = resVec( coarse2fine(i) );
-               % end
-            % end
 
          end
       end
