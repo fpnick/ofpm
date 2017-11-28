@@ -123,7 +123,7 @@ classdef Multigrid < handle
       %                       RHS f and the initial guess u.
          DEBUGLEVEL = 0;
          
-         if DEBUGLEVEL>=0
+         if DEBUGLEVEL>0
             solution = obj.solver.matrices{level} \ f;
             err = u-solution;
             if ( level==1 )
