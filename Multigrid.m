@@ -13,7 +13,7 @@ classdef Multigrid < handle
       RESTRICTION   = 3  % 1: Injection
                          % 2: "Half weighting"
                          % 3: "Half weighting" with row-scaling ResOp
-      INTERPOLATION = 4  % 1: Weighted based on distance
+      INTERPOLATION = 2  % 1: Weighted based on distance
                          % 2: like 1 but boundary couplings are taken into
                          % account when computing weights, but not for
                          % interpolation
