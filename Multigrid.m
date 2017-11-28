@@ -49,6 +49,7 @@ classdef Multigrid < handle
       % SOLVE  Solve the linear system given by the hierachy in 'solver'
       %     solution = solve(u,tol) solves with a residual reduction of tol
       %                             starting with initial guess u.
+         profile on
          DEBUGLEVEL = 0;
 
          if ( obj.NORMALIZE == 1 ) 
@@ -100,6 +101,7 @@ classdef Multigrid < handle
          rho      = (res/res0)^(1/iterations);
 
          fprintf('rho = %1.3f\n', rho);
+         profile off
       end
 
     end
