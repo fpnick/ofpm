@@ -37,6 +37,7 @@ function [x, error, iter, conv_rate, flag] = bicgstab(A, x, b, M, max_it, tol)
   if  ( bnrm2 == 0.0 ), bnrm2 = 1.0; end
 
   r = b - A*x;
+  res0 = norm(r);
   error = norm( r ) / bnrm2;
   if ( error < tol ) return, end
 
@@ -79,6 +80,9 @@ function [x, error, iter, conv_rate, flag] = bicgstab(A, x, b, M, max_it, tol)
      rho_1 = rho;
 
   end
+
+  res = norm(r);
+  conv_rate = (res/res0)^(1/iter);
 
   if ( error <= tol | s <= tol ),                   % converged
      if ( s <= tol ),
