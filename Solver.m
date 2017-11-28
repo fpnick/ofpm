@@ -9,7 +9,7 @@ classdef Solver < handle
        printlevel
        sol
        hierarchy
-       useMultigrid=1
+       linearSolver=1
        diagDom = -1
     end
 
@@ -40,13 +40,17 @@ classdef Solver < handle
           disp('Solving linear system...')
           tic
           % obj.matrices{1} = obj.matrices{1}./diag(obj.matrices{1});
-          if ( ~ obj.useMultigrid )
+          if ( obj.linearSolver == 0 )
              obj.sol = obj.matrices{1} \ obj.rhss{1};
              rho = -1;
-          else
+          elseif ( obj.linearSolver == 1 )
              mg = Multigrid(obj);
              rng(1);
              [obj.sol,rho] = mg.solve(zeros(obj.pointcloud.N,1),10^(-10));
+          elseif ( obj.linearSolver == 2 ) 
+             [obj.sol,~,iter_needed,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},speye(obj.pointcloud.N),10000,10^(-10));
+             iter_needed
+             flag
           end
           toc
 
