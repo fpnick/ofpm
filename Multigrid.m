@@ -107,6 +107,13 @@ classdef Multigrid < handle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     methods (Access=private)
+      
+      function createHierarchy()
+         DEBUGLEVEL = 0;
+
+
+
+      end
 
       function u = cycle( obj, level, u, f )
       % CYCLE  Performe one cycle from level downards.
