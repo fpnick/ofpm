@@ -28,7 +28,7 @@ classdef Solver < handle
 
        end
 
-       function rho = advance(obj)
+       function [rho,iter_needed] = advance(obj)
 
            
           for i=1:obj.hierarchy.depth
@@ -46,9 +46,9 @@ classdef Solver < handle
           elseif ( obj.linearSolver == 1 )
              mg = Multigrid(obj);
              rng(1);
-             [obj.sol,rho] = mg.solve(zeros(obj.pointcloud.N,1),10^(-10));
+             [obj.sol,rho,iter_needed] = mg.solve(zeros(obj.pointcloud.N,1),10^(-10));
           elseif ( obj.linearSolver == 2 ) 
-             [obj.sol,~,iter_needed,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},speye(obj.pointcloud.N),10000,10^(-10));
+             [obj.sol,~,iter_needed,rho,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},speye(obj.pointcloud.N),10000,10^(-10));
              iter_needed
              flag
           end

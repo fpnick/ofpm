@@ -45,7 +45,7 @@ classdef Multigrid < handle
          obj.interpolation_setup_done = zeros( obj.solver.hierarchy.depth, 1 );
       end
 
-      function [solution,rho] = solve(obj,u,tol)
+      function [solution,rho,iter_needed] = solve(obj,u,tol)
       % SOLVE  Solve the linear system given by the hierachy in 'solver'
       %     solution = solve(u,tol) solves with a residual reduction of tol
       %                             starting with initial guess u.
@@ -78,8 +78,10 @@ classdef Multigrid < handle
          iterations = 0;
 
          fprintf('Initial residual: %1.3e\n', res);
+         iter_needed = 0;
          
          while ( res > tol_abs && iterations < obj.nMaxIter )
+            iter_needed = iter_needed + 1;
             u          = obj.cycle( 1, u, obj.solver.rhss{1});
             resVec     = obj.solver.matrices{1}*u-obj.solver.rhss{1};
             res        = norm( resVec, 2);

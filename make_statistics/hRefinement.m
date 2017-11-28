@@ -1,8 +1,8 @@
 
 addpath('..')
 
-% x=0.008:0.001:0.07; 
-x=0.03:0.01:0.07; 
+% x=0.004:0.004:0.07; 
+ x=0.03:0.01:0.5; 
 condition = zeros(length(x),1);
 size = zeros(length(x),1);
 eigmax = zeros(length(x),1);
@@ -10,11 +10,12 @@ eigmin = zeros(length(x),1);
 diagdom = zeros(length(x),1);
 solmax = zeros(length(x),1);
 rho = zeros(length(x),1);
+iter_needed = zeros(length(x),1);
 
 
 for i=1:length(x)
     x(i)
-    [A,rhs,sol,pointcloud,rho(i)]=ofpm_oo(x(i),0,0,1,1,0);
+    [A,rhs,sol,pointcloud,rho(i),iter_needed(i)]=ofpm_oo(x(i),0,0,1,1,0);
     solmax(i) = max(sol);
     
 %     condition(i) = condest(A);
@@ -68,7 +69,11 @@ end
 % legend("Min","Max");
 % legend('Location','southwest');
 % xlabel("Matrix Size");
+% figure;
+% semilogx(size,rho,'ro');
+% title("Convergence rates");
+% xlabel("Matrix Size");
 figure;
-semilogx(size,rho,'ro');
-title("Convergence rates");
+loglog(size,iter_needed,'ro');
+title("Iterations to Converge");
 xlabel("Matrix Size");

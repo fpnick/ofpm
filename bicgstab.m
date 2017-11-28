@@ -1,4 +1,4 @@
-function [x, error, iter, flag] = bicgstab(A, x, b, M, max_it, tol)
+function [x, error, iter, conv_rate, flag] = bicgstab(A, x, b, M, max_it, tol)
 
 %  -- Iterative template routine --
 %     Univ. of Tennessee and Oak Ridge National Laboratory
