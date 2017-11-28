@@ -8,7 +8,7 @@ classdef Multigrid < handle
       solver % Note that solver contains the complete hierarchy + matrices
 
       % Parameters
-      SMOOTHER      = 2  % 1: Gauss-Seidel
+      SMOOTHER      = 1  % 1: Gauss-Seidel
                          % 2: Gauss-Seidel with RCM reordering
       RESTRICTION   = 3  % 1: Injection
                          % 2: "Half weighting"
