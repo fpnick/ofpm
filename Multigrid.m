@@ -28,6 +28,9 @@ classdef Multigrid < handle
       nPostSmooth   = 1 % n: Number of post-smoothing steps
       nMaxIter      = 100
 
+      ENABLE_AMG = 1
+      AMG_COARSENING_TYPE = 2
+
       %
       restriction_setup_done
       resOp
@@ -43,6 +46,9 @@ classdef Multigrid < handle
          obj.solver = solver;
          obj.restriction_setup_done = zeros( obj.solver.hierarchy.depth, 1 );
          obj.interpolation_setup_done = zeros( obj.solver.hierarchy.depth, 1 );
+         if ( obj.ENABLE_AMG == 1 )
+            obj.createHierarchyAlgebraicly();
+         end
       end
 
       function [solution,rho,iter_needed] = solve(obj,u,tol)
@@ -112,11 +118,143 @@ classdef Multigrid < handle
 
     methods (Access=private)
       
-      function createHierarchy()
+      function levels_created = createHierarchyAlgebraicly(obj)
          DEBUGLEVEL = 0;
+         idebug = DEBUGLEVEL;
+         idebug_check_rowsum = 0;
+         idebug_dump_strong_couplings = 0;
 
+         levels_created=1;
+         A=obj.solver.matrices{1};
+         nnu = size(A,1);
+     
+         colormap ('default');
+     
+         obj.solver.matrices{1} = A;
+     
+         if ( idebug > 1)
+             figure;
+             imagesc(full(obj.solver.matrices{1}));
+             title(strcat('Operator on level ', num2str(1)));
+             colorbar();
+             str= strcat('op', num2str(1), '.png');
+             print(str, '-dpng');
+             if ( idebug > 2)
+                 galerkin=full(obj.solver.matrices{1})
+             end
+         end
+     
+         for l=1:obj.solver.hierarchy.MAXLEVELS-1
+     
+             if ( idebug_check_rowsum > 0 ) 
+                 [min,max,rsum] = checkRowsum(obj.solver.matrices{l});
+                 disp(sprintf('Level %i: Rowsum min = %f, max = %f\n',l,min,max));
+                 if ( idebug_check_rowsum > 1 )
+                     figure
+                     plot(rsum)
+                 end
+             end
+     
+             disp(sprintf('Level %i: Finding strong couplings\n',l));
+             S = strongCouplings(obj.solver.matrices{l});
 
+             if ( idebug > 1 )
+                 figure;
+                 spy(S);
+                 title(strcat('Strong couplings on level ', num2str(l)));
+                 colorbar();
+             end
+             if ( idebug_dump_strong_couplings >= 1 ) 
+                 filename = strcat('strong_couplings_',num2str(l));
+                 save(filename,'S');
+             end
+     
+             switch ( obj.AMG_COARSENING_TYPE )
+             case 1
+                 disp(sprintf('Level %i: Finding pairs\n',l));
+                 [pairs, num_cg_vars] = findPairs(S);
+                 if ( idebug > 2 )
+                     pairs
+                 end
+             case 2
+                 disp(sprintf('Level %i: Finding C/F splitting\n',l));
+                 [splitting, num_cg_vars] = CFSplit(S,obj.solver.matrices{l});
+             otherwise
+                 disp(sprintf('Unsupported parameter\n'));
+                 quit;
+             end
+     
+             disp(sprintf('Level %i has %i variables. (if using iu, this value refersto the extraced submatrix)\n', l+1, num_cg_vars));
+             disp(sprintf('Level %i: Coarsening rate is %f\n', l, num_cg_vars / size(S,1)));
+     
+             disp(sprintf('Level %i: Finding prolongation from level %i to %i\n', l, l+1,l));
+             switch ( obj.AMG_COARSENING_TYPE )
+             case 1
+                 [obj.interOp{l}, obj.resOp{l}, coarse2fine]  = getProlong_pairs(pairs, num_cg_vars);
+             case 2
+                 % @todo Standard prolongation here.
+                 [obj.interOp{l}, obj.resOp{l}, coarse2fine] = getProlong_rs(obj.solver.matrices{l}, splitting, num_cg_vars);
+             otherwise
+                 disp(sprintf('Unsupported parameter\n'));
+                 quit;
+             end
+     
+     %        P{l}=P{l}
+     %        Inj{l} = Inj{l}
+     
+     
+             if ( idebug > 1)
+                 figure;
+                 imagesc(full(obj.interOp{l}));
+                 title(strcat('Prolongation from level ', num2str(l+1), ' to ', num2str(l)));
+                 colorbar();
+                 str= strcat('prlng', num2str(l), '.png');
+                 print(str, '-dpng');
+                 figure;
+                 imagesc(full(obj.resOp{l}));
+                 title(strcat('Injection from level ', num2str(l+1), ' to ', num2str(l)));
+                 str= strcat('inj', num2str(l), '.png');
+                 print(str, '-dpng');
+                 colorbar();
+                 if ( idebug > 2 )
+                     Prolongation = obj.interOp{l}
+                 end
+             end
+     
+             disp(sprintf('Level %i: Constructing Galerkin operator\n', l));
+             obj.solver.matrices{l+1} = getGalerkin(obj.solver.matrices{l},obj.interOp{l});
+             if ( idebug > 1)
+                 figure;
+                 imagesc(full(obj.solver.matrices{l+1}));
+                 title(strcat('Operator on level ', num2str(l+1)));
+                 colorbar();
+                 str= strcat('op', num2str(l+1), '.png');
+                 print(str, '-dpng');
+                 if ( idebug > 2)
+                     galerkin=full(obj.solver.matrices{l+1})
+                 end
+             end
+     
+             if ( num_cg_vars <= obj.solver.hierarchy.CGMAX )
+                 if ( idebug_check_rowsum > 0 ) 
+                     [min,max,rsum] = checkRowsum(obj.solver.matrices{l+1});
+                     disp(sprintf('Level %i: Rowsum min = %f, max = %f\n',l+1,min,max));
+                     if ( idebug_check_rowsum > 1 )
+                         figure
+                         plot(rsum)
+                     end
+                 end
+                 disp(sprintf('Level  %i is small enough\n', l+1));
+                 levels_created = l+1;
+                 break;
+             else if ( (l==obj.solver.hierarchy.MAXLEVELS-1) )
+                 levels_created=obj.solver.hierarchy.MAXLEVELS;
+             end
+         end
 
+         obj.solver.hierarchy.depth = levels_created;
+
+      end
       end
 
       function u = cycle( obj, level, u, f )

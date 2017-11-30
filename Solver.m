@@ -9,7 +9,7 @@ classdef Solver < handle
        printlevel
        sol
        hierarchy
-       linearSolver=3
+       linearSolver=1
        diagDom = -1
     end
 
