@@ -190,10 +190,10 @@ classdef Multigrid < handle
              disp(sprintf('Level %i: Finding prolongation from level %i to %i\n', l, l+1,l));
              switch ( obj.AMG_COARSENING_TYPE )
              case 1
-                 [obj.interOp{l}, obj.resOp{l}, coarse2fine]  = getProlong_pairs(pairs, num_cg_vars);
+                 [obj.interOp{l+1}, obj.resOp{l}, coarse2fine]  = getProlong_pairs(pairs, num_cg_vars);
              case 2
                  % @todo Standard prolongation here.
-                 [obj.interOp{l}, obj.resOp{l}, coarse2fine] = getProlong_rs(obj.solver.matrices{l}, splitting, num_cg_vars);
+                 [obj.interOp{l+1}, obj.resOp{l}, coarse2fine] = getProlong_rs(obj.solver.matrices{l}, splitting, num_cg_vars);
              otherwise
                  disp(sprintf('Unsupported parameter\n'));
                  quit;
@@ -205,7 +205,7 @@ classdef Multigrid < handle
      
              if ( idebug > 1)
                  figure;
-                 imagesc(full(obj.interOp{l}));
+                 imagesc(full(obj.interOp{l+1}));
                  title(strcat('Prolongation from level ', num2str(l+1), ' to ', num2str(l)));
                  colorbar();
                  str= strcat('prlng', num2str(l), '.png');
@@ -217,12 +217,12 @@ classdef Multigrid < handle
                  print(str, '-dpng');
                  colorbar();
                  if ( idebug > 2 )
-                     Prolongation = obj.interOp{l}
+                     Prolongation = obj.interOp{l+1}
                  end
              end
      
              disp(sprintf('Level %i: Constructing Galerkin operator\n', l));
-             obj.solver.matrices{l+1} = getGalerkin(obj.solver.matrices{l},obj.interOp{l});
+             obj.solver.matrices{l+1} = getGalerkin(obj.solver.matrices{l},obj.interOp{l+1});
              if ( idebug > 1)
                  figure;
                  imagesc(full(obj.solver.matrices{l+1}));
@@ -251,10 +251,13 @@ classdef Multigrid < handle
                  levels_created=obj.solver.hierarchy.MAXLEVELS;
              end
          end
-
+         end
+      
          obj.solver.hierarchy.depth = levels_created;
+         obj.restriction_setup_done = ones( obj.solver.hierarchy.depth, 1 );
+         obj.interpolation_setup_done = ones( obj.solver.hierarchy.depth, 1 );
 
-      end
+
       end
 
       function u = cycle( obj, level, u, f )
@@ -397,8 +400,8 @@ classdef Multigrid < handle
       %     R = restrict(resVec,level) Restrict the residual vector resVec from
       %                                level level to level level+1
 
-         NCoarse = obj.solver.hierarchy.pointclouds{level+1}.N;
-         NFine   = obj.solver.hierarchy.pointclouds{level}.N;
+         NCoarse = size(obj.solver.matrices{level+1},1);
+         NFine   = size(obj.solver.matrices{level},1);
          fine2coarse = obj.solver.hierarchy.fine2coarse{level+1};
          coarse2fine = obj.solver.hierarchy.coarse2fine{level+1};
          ibound_type_fine = obj.solver.hierarchy.pointclouds{level}.ibound_type;
@@ -413,6 +416,7 @@ classdef Multigrid < handle
          elseif ( obj.RESTRICTION == 2 || obj.RESTRICTION == 3 || obj.RESTRICTION == 4)
 
             if ( obj.restriction_setup_done(level) == 0 )
+               fprintf('Setting up geometric restriction');
 
                maxentries = 0;
                for i=1:NFine
@@ -485,7 +489,7 @@ classdef Multigrid < handle
       %                                       level to level level-1
       %     TODO: Setup of interpolation should be done ONCE, not in every
       %     iteration!
-         NFine       = obj.solver.hierarchy.pointclouds{level-1}.N;
+         NFine       = size(obj.solver.matrices{level-1},1);
          fine2coarse = obj.solver.hierarchy.fine2coarse{level};
          r           = zeros (NFine, 1);
          ibound_type_fine = obj.solver.hierarchy.pointclouds{level-1}.ibound_type;
@@ -493,6 +497,7 @@ classdef Multigrid < handle
          if ( obj.INTERPOLATION == 1 || obj.INTERPOLATION == 2 || obj.INTERPOLATION == 3 || obj.INTERPOLATION == 4)
 
             if ( obj.interpolation_setup_done(level) == 0 )
+               fprintf('Setting up geometric interpolation');
 
                maxentries = 0;
                for i=1:NFine
