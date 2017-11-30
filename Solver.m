@@ -9,7 +9,7 @@ classdef Solver < handle
        printlevel
        sol
        hierarchy
-       linearSolver=1
+       linearSolver=3
        diagDom = -1
     end
 
@@ -48,6 +48,13 @@ classdef Solver < handle
              rng(1);
              [obj.sol,rho,iter_needed] = mg.solve(zeros(obj.pointcloud.N,1),10^(-10));
           elseif ( obj.linearSolver == 2 ) 
+             [obj.sol,~,iter_needed,rho,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},speye(obj.pointcloud.N),10000,10^(-10));
+             iter_needed
+             flag
+          elseif ( obj.linearSolver == 3 ) 
+             obj.matrices{1} = obj.matrices{1}./diag(obj.matrices{1});
+             obj.rhss{1} = obj.rhss{1}./diag(obj.matrices{1});
+             % [obj.sol,~,iter_needed,rho,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},inv(diag(diag(obj.matrices{1}))),10000,10^(-10));
              [obj.sol,~,iter_needed,rho,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},speye(obj.pointcloud.N),10000,10^(-10));
              iter_needed
              flag
