@@ -15,12 +15,14 @@ function S = strongCouplings(A)
 
     m = size(A,1);
     n = size(A,2);
-    S = sparse(m,n);
     maxvals = zeros(1,m);
     
     estr = 0.25;
 
     [ii,jj,ss] = find(A);
+    Srow = zeros(numel(ii),1);
+    Scol = zeros(numel(ii),1);
+    Sval = ones(numel(ii),1);
 
     for i = 1:numel(ii)
        row = ii(i);
@@ -39,23 +41,30 @@ function S = strongCouplings(A)
        end
     end
 
+    ptr=1;
     for i = 1:numel(ii)
        row = ii(i);
        col = jj(i);
        val = ss(i);
        if ( coupling_mode == 1 )
           if ( val < 0.0 && -val >= estr * maxvals(row))
-             S(row,col) = 1;
+             Srow(ptr) = row;
+             Scol(ptr) = col;
+             ptr = ptr+1;
           end
        elseif ( coupling_mode == 2 ) 
           if ( abs(val) >= estr * maxvals(row) )
-             S(row,col) = 1;
+             Srow(ptr) = row;
+             Scol(ptr) = col;
+             ptr = ptr+1;
              if ( val > 0 ) 
                 positive_couplings = positive_couplings + 1;
              end
           end
        end
     end
+    
+    S = sparse(Srow(1:ptr-1),Scol(1:ptr-1),Sval(1:ptr-1));
 
     if ( positive_couplings > 0 )
         disp(sprintf('Used %i positive couplings\n', positive_couplings));
