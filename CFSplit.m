@@ -86,7 +86,7 @@ function lambda = initLambda(S, splitting)
 
     for i=1:n
         if ( splitting(i) == 0 )
-            [row,col,val] = find(S(i,:));
+            [~,col,~] = find(S(i,:));
             sum1 = 0;
             sum2 = 0;
             for j=1:numel(col)

@@ -14,7 +14,6 @@ function S = strongCouplings(A)
     positive_couplings = 0;
 
     m = size(A,1);
-    n = size(A,2);
     maxvals = zeros(1,m);
     
     estr = 0.25;
