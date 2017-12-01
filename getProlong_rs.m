@@ -15,6 +15,9 @@ function [P, Inj, coarse2fine] = getProlong_rs(A, splitting, num_cg_vars)
     n = length(splitting);
     pointer = 1;
     P = sparse(n,num_cg_vars);
+    Prow = zeros(n*num_cg_vars,1);
+    Pcol = zeros(n*num_cg_vars,1);
+    Pval = zeros(n*num_cg_vars,1);
     fine2coarse = -ones(1,n);
     coarse2fine = zeros(1,num_cg_vars);
 
@@ -26,11 +29,13 @@ function [P, Inj, coarse2fine] = getProlong_rs(A, splitting, num_cg_vars)
         end
     end
     
+    Pptr = 1;
+    
     for i=1:n
         if ( A(i,i) == 0 ) 
             disp('Prolongation encountered A(i,i)==0');
         end
-        [row,col,val] = find(A(i,:));
+        [~,col,val] = find(A(i,:));
         if ( splitting(i) == -1 )
             sum_neg_n = 0;
             sum_neg_p = 0;
@@ -70,7 +75,11 @@ function [P, Inj, coarse2fine] = getProlong_rs(A, splitting, num_cg_vars)
             for k=1:numel(col)
                 if ( splitting(col(k)) == 1 )
                     if ( val(k) < 0 ) 
-                        P(i,fine2coarse(col(k))) =  val(k)*tmp_alpha;
+%                         P(i,fine2coarse(col(k))) =  val(k)*tmp_alpha;
+                        Prow(Pptr) = i;
+                        Pcol(Pptr) = fine2coarse(col(k));
+                        Pval(Pptr) = val(k)*tmp_alpha;
+                        Pptr = Pptr +1;
                         if ( val(k)*tmp_alpha == 0 ) 
                             disp('Prolongation (-) assigned weight 0');
                             A(i,:)
@@ -78,7 +87,11 @@ function [P, Inj, coarse2fine] = getProlong_rs(A, splitting, num_cg_vars)
                             col(k)
                         end
                     else
-                        P(i,fine2coarse(col(k))) =  val(k)*tmp_beta;
+%                         P(i,fine2coarse(col(k))) =  val(k)*tmp_beta;
+                        Prow(Pptr) = i;
+                        Pcol(Pptr) = fine2coarse(col(k));
+                        Pval(Pptr) = val(k)*tmp_beta;
+                        Pptr = Pptr +1;
                         if ( val(k)*tmp_beta == 0 ) 
                             disp('Prolongation (+) assigned weight 0');
                             i
@@ -92,9 +105,15 @@ function [P, Inj, coarse2fine] = getProlong_rs(A, splitting, num_cg_vars)
     
     for i=1:n
         if ( splitting(i) == 1 )
-            P(i,fine2coarse(i)) = 1;
+%             P(i,fine2coarse(i)) = 1;
+            Prow(Pptr) = i;
+            Pcol(Pptr) = fine2coarse(i);
+            Pval(Pptr) = 1;
+            Pptr = Pptr +1;
         end
     end
+    
+    P = sparse(Prow(1:Pptr-1),Pcol(1:Pptr-1),Pval(1:Pptr-1));
 
     Inj = P';
 
