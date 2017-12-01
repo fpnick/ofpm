@@ -22,7 +22,7 @@ classdef Multigrid < handle
                          % 4: like 2, but scale rows of the interpolation so
                          % that the row sum is 1. This means incoming weights
                          % sum up to 1 at every F-Point.
-      NORMALIZE     = 0  % 1: Normalize matrices on every level
+      NORMALIZE     = 1  % 1: Normalize matrices on every level
       ENFORCE_DIAGDOM = 0 % 1: Add 5% to every diagonal
       nPreSmooth    = 1  % n: Number of pre-smoothing steps
       nPostSmooth   = 1 % n: Number of post-smoothing steps
@@ -47,6 +47,10 @@ classdef Multigrid < handle
          obj.restriction_setup_done = zeros( obj.solver.hierarchy.depth, 1 );
          obj.interpolation_setup_done = zeros( obj.solver.hierarchy.depth, 1 );
          if ( obj.ENABLE_AMG == 1 )
+            if ( obj.NORMALIZE == 1 )
+               obj.solver.matrices{1} = obj.solver.matrices{1}./diag(obj.solver.matrices{1});
+               obj.solver.rhss{1} = obj.solver.rhss{1}./diag(obj.solver.matrices{1});
+            end
             obj.createHierarchyAlgebraicly();
          end
       end
@@ -58,7 +62,7 @@ classdef Multigrid < handle
          profile on
          DEBUGLEVEL = 0;
 
-         if ( obj.NORMALIZE == 1 ) 
+         if ( obj.NORMALIZE == 1 && obj.ENABLE_AMG ~= 1) 
             for i=1:obj.solver.hierarchy.depth
                obj.solver.matrices{i} = obj.solver.matrices{i}./diag(obj.solver.matrices{i});
                obj.solver.rhss{i} = obj.solver.rhss{i}./diag(obj.solver.matrices{i});
