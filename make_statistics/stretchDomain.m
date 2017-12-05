@@ -11,9 +11,9 @@ eigmin = zeros(length(X),1);
 diagdom = zeros(length(X),1);
 
 
-parfor i=1:length(X)
+for i=1:length(X)
     X(i)
-    [A,rhs,sol,pointcloud,rho,iter_needed]=ofpm_oo(H,0,0,X(i),1,0);
+    [A,rhs,sol,pointcloud,rho,iter_needed(i)]=ofpm_oo(H,0,0,X(i),1,0);
     % condition(i) = condest(A);
     size(i) = length(A);
     % eigmin(i) = eigs(A,1,'sm');
