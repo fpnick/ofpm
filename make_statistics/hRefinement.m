@@ -1,8 +1,10 @@
 
 addpath('..')
 
-% x=0.004:0.004:0.07; 
- x=0.03:0.01:0.5; 
+x=0.005:0.001:0.07; 
+% For Darmstadt paper:
+% x=0.005:0.001:0.07; 
+ % x=0.3:0.1:0.5; 
 condition = zeros(length(x),1);
 size = zeros(length(x),1);
 eigmax = zeros(length(x),1);
