@@ -63,6 +63,13 @@ function S = strongCouplings(A)
        end
     end
     
+    for i=1:m
+        Srow(ptr)=i;
+        Scol(ptr)=i;
+        Sval(ptr)=0;
+        ptr=ptr+1;
+    end
+    
     S = sparse(Srow(1:ptr-1),Scol(1:ptr-1),Sval(1:ptr-1));
 
     if ( positive_couplings > 0 )
