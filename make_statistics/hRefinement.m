@@ -20,7 +20,6 @@ for i=1:length(x)
     [A,rhs,sol,pointcloud,rho(i),iter_needed(i)]=ofpm_oo(x(i),0,0,1,1,0);
     solmax(i) = max(sol);
 
-    save(sprintf('/home/fabian/papers/paper-darmstadt/paper/figures/matrix%i',i),'A');
     
 %     condition(i) = condest(A);
     size(i) = length(A);

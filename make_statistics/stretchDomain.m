@@ -16,6 +16,9 @@ for i=1:length(X)
     [A,rhs,sol,pointcloud,rho,iter_needed(i)]=ofpm_oo(H,0,0,X(i),X(i),0);
     % condition(i) = condest(A);
     size(i) = length(A);
+
+    % save(sprintf('/home/fabian/papers/paper-darmstadt/paper/figures/stretchmatrix%i',i),'A');
+
     % eigmin(i) = eigs(A,1,'sm');
     % eigmax(i) = eigs(A,1);
     % diagdom(i) = measureDiagDom(A);
