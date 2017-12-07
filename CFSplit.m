@@ -90,6 +90,13 @@ function lambda = initLambda(S, splitting)
             sum1 = 0;
             sum2 = 0;
             for j=1:numel(col)
+                if ( col(j) > n || i > size(S,2) )
+                    j
+                    col(j)
+                    i
+                    n
+                    size(S,2)
+                end
                 if ( S(col(j),i) == 1 )
                    if ( splitting(col(j)) == 0 )
                       sum1 = sum1 + 1;
