@@ -52,10 +52,15 @@ classdef Solver < handle
              iter_needed
              flag
           elseif ( obj.linearSolver == 3 ) 
+             rho=0.0
+             iter_needed=0
+             flag=0
              obj.matrices{1} = obj.matrices{1}./diag(obj.matrices{1});
              obj.rhss{1} = obj.rhss{1}./diag(obj.matrices{1});
+             obj.sol = 0
              % [obj.sol,~,iter_needed,rho,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},inv(diag(diag(obj.matrices{1}))),10000,10^(-10));
-             [obj.sol,~,iter_needed,rho,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},speye(obj.pointcloud.N),10000,10^(-10));
+             % THE LOWER ONE IS THE CORRECT ONE.
+             % [obj.sol,~,iter_needed,rho,flag] = bicgstab(obj.matrices{1},zeros(obj.pointcloud.N,1),obj.rhss{1},speye(obj.pointcloud.N),10000,10^(-10));
              iter_needed
              flag
           end
