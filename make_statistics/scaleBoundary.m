@@ -11,14 +11,14 @@ function [ B ] = scaleBoundary( A, ibound )
         if ( ibound(i) == 0 )
             innerAvg=innerAvg+A(i,i);
             inner = inner + 1;
-        elseif ( ibound(i) ~= 1)
+        elseif ( ibound(i) ~= 0)
             bndAvg=bndAvg+A(i,i);
             bndDirichlet = bndDirichlet + 1;
         end
     end
     
-    innerAvg = innerAvg / inner;
-    bndAvg = bndAvg / bndDirichlet;
+    innerAvg = innerAvg / inner
+    bndAvg = bndAvg / bndDirichlet
     
     scalFactor = innerAvg/bndAvg;
     
